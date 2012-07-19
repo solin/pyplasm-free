@@ -1079,18 +1079,26 @@ if self_test:
 # ROTATE
 # ===================================================
 
-def ROTATE (plane_indexes):
-    def ROTATE1 (angle):
-        def ROTATE2 (pol):
+def PLASM_ROTATE (plane_indexes):
+    def PLASM_ROTATE1 (angle):
+        def PLASM_ROTATE2 (pol):
             dim = max(plane_indexes)
             return Plasm.rotate(pol, dim, plane_indexes[0] , plane_indexes[1], angle)
-        return ROTATE2    
-    return ROTATE1
-R = ROTATE
+        return PLASM_ROTATE2    
+    return PLASM_ROTATE1
+PLASM_R = PLASM_ROTATE
 
 if self_test: 
-	assert(Plasm.limits(ROTATE([1,2])(PI/2)(Plasm.cube(2))).fuzzyEqual(Boxf(Vecf(1,-1,0),Vecf(1,0,+1))))
+	assert(Plasm.limits(PLASM_ROTATE([1,2])(PI/2)(Plasm.cube(2))).fuzzyEqual(Boxf(Vecf(1,-1,0),Vecf(1,0,+1))))
 
+# NEW DEFINITION
+def ROTATE(axis_index):
+    if axis_index == 1: plane_indexes = [2, 3]
+    elif axis_index == 2: plane_indexes = [1, 3]
+    else: plane_indexes = [1, 2]
+    return PLASM_ROTATE(plane_indexes)
+
+R = ROTATE
 
 # ===================================================
 #; Applica uno shearing con vettore shearing-vector-list sulla variabile
@@ -1572,25 +1580,31 @@ if self_test:
 # RING 
 # =============================================
 
-def RING (radius):
+def PLASM_RING (radius):
     R1 , R2 = radius
-    def RING0 (subds):
+    def PLASM_RING0 (subds):
         N , M = subds
         domain= Plasm.translate(POWER([INTERVALS(2*PI)(N),INTERVALS(R2-R1)(M)]),Vecf([0.0,0.0,R1]))
         fun=lambda p: [p[1]*math.cos(p[0]),p[1]*math.sin(p[0])]
         return MAP(fun)(domain)
-    return RING0
+    return PLASM_RING0
 
 if self_test:
     assert Plasm.limits(RING([0.5,1])([8,8]))==Boxf(Vecf(1,-1,-1),Vecf(1,+1,+1))
 
+# NEW DEFINITION
+def RING(args, division = 64):
+    return PLASM_RING(args)(division)
 
-def TUBE (args):
+def PLASM_TUBE (args):
     r1 , r2 , height= args
-    def TUBE0 (N):
+    def PLASM_TUBE0 (N):
         return Plasm.power(RING([r1, r2])([N, 1]),QUOTE([height]))
-    return TUBE0
+    return PLASM_TUBE0
 
+# NEW DEFINITION
+def TUBE(args, division = 64):
+    return PLASM_TUBE(args)(division)
 
 
 
@@ -1598,35 +1612,42 @@ def TUBE (args):
 # CIRCLE 
 # =============================================
 
-def CIRCLE (R):
-    def CIRCLE0 (subs):
+def PLASM_CIRCLE (R):
+    def PLASM_CIRCLE0 (subs):
         N , M = subs
         domain= POWER([INTERVALS(2*PI)(N), INTERVALS(R)(M)])
         fun=lambda p: [p[1]*math.cos(p[0]),p[1]*math.sin(p[0])]
         return MAP(fun)(domain)
-    return CIRCLE0
+    return PLASM_CIRCLE0
 
 if self_test: 
-    assert Plasm.limits(CIRCLE(1.0)([8,8]))==Boxf(Vecf(1,-1,-1),Vecf(1,+1,+1))
+    assert Plasm.limits(PLASM_CIRCLE(1.0)([8,8]))==Boxf(Vecf(1,-1,-1),Vecf(1,+1,+1))
 
+# NEW DEFINITION
+def CIRCLE(args, division = 64):
+    return PLASM_CIRCLE(args)(division)
 
 # =============================================
-# MY_CILINDER 
+# MY_CYLINDER 
 # =============================================
 
-def MY_CYLINDER (args):
+def PLASM_MY_CYLINDER (args):
     R , H = args
-    def MY_CYLINDER0 (N):
+    def PLASM_MY_CYLINDER0 (N):
         points=CIRCLE_POINTS(R,N)
         circle=Plasm.mkpol(2,CAT(points),[range(N)])
         return Plasm.power(circle,Plasm.mkpol(1,[0,H],[[0,1]]))
-    return MY_CYLINDER0
+    return PLASM_MY_CYLINDER0
 
-CYLINDER =MY_CYLINDER 
+PLASM_CYLINDER = PLASM_MY_CYLINDER 
 
 
 if self_test: 
-   assert(Plasm.limits(CYLINDER ([1.0,2.0])(8)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,2))))
+   assert(Plasm.limits(PLASM_CYLINDER([1.0,2.0])(8)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,2))))
+
+# NEW DEFINITION
+def CYLINDER(args, division = 64):
+    return PLASM_CYLINDER(args)(division)
 
 
 
@@ -1635,8 +1656,8 @@ if self_test:
 # =============================================
 
 
-def SPHERE (radius):
-    def SPHERE0 (subds):
+def PLASM_SPHERE (radius):
+    def PLASM_SPHERE0 (subds):
         N , M = subds
         domain = Plasm.translate( Plasm.power(INTERVALS(PI)(N) , INTERVALS(2*PI)(M)), Vecf(0, -PI/2,0 ) )
         fx  = lambda p: radius * math.cos(p[0])  * math.sin  (p[1])
@@ -1644,22 +1665,26 @@ def SPHERE (radius):
         fz  = lambda p: radius * math.sin(p[0]) 
         ret=  MAP([fx, fy, fz])(domain)
         return ret
-    return SPHERE0
+    return PLASM_SPHERE0
 
 if self_test:
-	assert Plasm.limits(SPHERE(1)([8,8])).fuzzyEqual(Boxf(Vecf(1,-1,-1,-1),Vecf(1,+1,+1,+1)))
+	assert Plasm.limits(PLASM_SPHERE(1)([8,8])).fuzzyEqual(Boxf(Vecf(1,-1,-1,-1),Vecf(1,+1,+1,+1)))
 	plasm_config.push(1e-4)
-	VIEW(SPHERE(1)([16,16]))
+	VIEW(PLASM_SPHERE(1)([16,16]))
 	plasm_config.pop()
+
+# NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
+def SPHERE(radius, divisions = [32, 32]):
+    return PLASM_SPHERE(radius)(divisions)
 
 
 # =============================================
 # TORUS
 # =============================================
 
-def TORUS (radius):
+def PLASM_TORUS (radius):
     r1 , r2 = radius
-    def TORUS0 (subds):
+    def PLASM_TORUS0 (subds):
         N , M = subds
         a=0.5*(r2-r1)
         c=0.5*(r1+r2)
@@ -1668,38 +1693,47 @@ def TORUS (radius):
         fy =   lambda p: (c+a*math.cos(p[1])) * math.sin (p[0])
         fz =   lambda p: a*math.sin(p[1])
         return MAP(([fx,fy,fz]))(domain)
-    return TORUS0
+    return PLASM_TORUS0
 
 
 if self_test:
-   assert Plasm.limits(TORUS([1,2])([8,8])).fuzzyEqual(Boxf(Vecf(1,-2,-2,-0.5),Vecf(1,+2,+2,+0.5)))
+   assert Plasm.limits(PLASM_TORUS([1,2])([8,8])).fuzzyEqual(Boxf(Vecf(1,-2,-2,-0.5),Vecf(1,+2,+2,+0.5)))
    plasm_config.push(1e-4)
-   VIEW(TORUS([1,2])([20,20]))
+   VIEW(PLASM_TORUS([1,2])([20,20]))
    plasm_config.pop()
+
+# NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
+def TORUS(radiuses, divisions = [32, 32]):
+    return PLASM_TORUS(radiuses)(divisions)
 
 
 # =============================================
 # CONE
 # =============================================
 
-def CONE (args):
+def PLASM_CONE (args):
      radius , height = args
-     def CONE0(N):
-        basis = CIRCLE(radius)([N,1])
+     def PLASM_CONE0(N):
+        basis = PLASM_CIRCLE(radius)([N,1])
         apex = T(3)(height)(SIMPLEX(0))
         return  JOIN([basis, apex])
-     return CONE0
+     return PLASM_CONE0
 
 if self_test:
-   assert Plasm.limits(CONE([1.0,3.0])(16)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,3)))
+   assert Plasm.limits(PLASM_CONE([1.0,3.0])(16)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,3)))
+
+# NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
+def CONE(args, division = 32):
+    return PLASM_CONE(args)(division)
+
 
 # =============================================
 # TRUNCONE
 # =============================================
 
-def TRUNCONE (args):
+def PLASM_TRUNCONE (args):
 	R1 , R2 , H = args
-	def TRUNCONE0 (N):
+	def PLASM_TRUNCONE0 (N):
 		domain = Plasm.power( QUOTE([2*PI/N for i in range(N)]) , QUOTE([1])  )
 		def fn(p):
 			return [
@@ -1708,8 +1742,11 @@ def TRUNCONE (args):
 				(H*p[1])
 			]
 		return MAP(fn)(domain)
-	return TRUNCONE0
+	return PLASM_TRUNCONE0
 
+# NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
+def TRUNCONE(args, divisions = 32):
+    return PLASM_TRUNCONE(args)(divisions)
 
 
 # =============================================
@@ -2285,7 +2322,7 @@ def ROTN (args):
 # MKVECTOR
 # ===================================================
 
-MKVERSORK = TOP([CYLINDER([1.0/100.0, 7.0/8.0])(6),CONE([1.0/16.0,1.0/8])(8)])
+MKVERSORK = TOP([PLASM_CYLINDER([1.0/100.0, 7.0/8.0])(6),PLASM_CONE([1.0/16.0,1.0/8])(8)])
 
 def MKVECTOR (P1):
     def MKVECTOR0 (P2):

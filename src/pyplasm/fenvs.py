@@ -1719,10 +1719,12 @@ def PLASM_SOLIDTORUS (radius):
     r1 , r2 = radius
     def PLASM_TORUS0 (subdomains):
         N, M, P = subdomains
+        a=0.5*(r2-r1)
+        c=0.5*(r1+r2)
         domain = INSR(PROD)([INTERVALS(2*PI)(N), INTERVALS(2*PI)(M), INTERVALS(1)(P)])
-        fx =   lambda p: (r2 + p[2]*r1*math.cos(p[0])) * math.cos(p[1])
-        fy =   lambda p: (r2 + p[2]*r1*math.cos(p[0])) * -math.sin(p[1])
-        fz =   lambda p: p[2]*r1*math.sin(p[0])
+        fx =   lambda p: (c + p[2]*a*math.cos(p[0])) * math.cos(p[1])
+        fy =   lambda p: (c + p[2]*a*math.cos(p[0])) * -math.sin(p[1])
+        fz =   lambda p: p[2]*a*math.sin(p[0])
         return MAP(([fx,fy,fz]))(domain)
     return PLASM_TORUS0
 

@@ -1674,12 +1674,17 @@ if self_test:
 	plasm_config.pop()
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def SPHERE(radius, divisions = [32, 32]):
+def SPHERE_SURFACE(radius, divisions = [32, 32]):
+    # This is a surface:
     return PLASM_SPHERE(radius)(divisions)
+
+def SPHERE(radius, divisions = [32, 32]):
+    # Making it s solid:
+    return JOIN(PLASM_SPHERE(radius)(divisions))
 
 
 # =============================================
-# TORUS
+# TORUS - SURFACE
 # =============================================
 
 def PLASM_TORUS (radius):
@@ -1703,8 +1708,30 @@ if self_test:
    plasm_config.pop()
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def TORUS(radiuses, divisions = [32, 32]):
+def TORUS_SURFACE(radiuses, divisions = [32, 32]):
     return PLASM_TORUS(radiuses)(divisions)
+
+# =============================================
+# TORUS - SOLID
+# =============================================
+
+def PLASM_SOLIDTORUS (radius):
+    r1 , r2 = radius
+    def PLASM_TORUS0 (subdomains):
+        N, M, P = subdomains
+        domain = INSR(PROD)([INTERVALS(2*PI)(N), INTERVALS(2*PI)(M), INTERVALS(1)(P)])
+        fx =   lambda p: (r2 + p[2]*r1*math.cos(p[0])) * math.cos(p[1])
+        fy =   lambda p: (r2 + p[2]*r1*math.cos(p[0])) * -math.sin(p[1])
+        fz =   lambda p: p[2]*r1*math.sin(p[0])
+        return MAP(([fx,fy,fz]))(domain)
+    return PLASM_TORUS0
+
+if self_test:
+	VIEW(SKELETON(1)(PLASM_SOLIDTORUS([1.5,2])([18,24,1])))
+
+# NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
+def TORUS(radiuses, divisions = [32, 32]):
+    return PLASM_SOLIDTORUS(radiuses)([divisions[0], divisions[1], 1])
 
 
 # =============================================
@@ -1746,7 +1773,8 @@ def PLASM_TRUNCONE (args):
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
 def TRUNCONE(args, divisions = 32):
-    return PLASM_TRUNCONE(args)(divisions)
+    # Changing to a solid:
+    return JOIN(PLASM_TRUNCONE(args)(divisions))
 
 
 # =============================================

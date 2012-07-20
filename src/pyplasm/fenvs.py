@@ -920,11 +920,11 @@ def CUBE (side):
 def SQUARE (side):
     return CUBOID([side, side])
 
-def BRICK (args):
-    return CUBOID(args)
+def BRICK (a, b, c):
+    return CUBOID([a, b, c])
 
-def RECTANGLE (args):
-    return CUBOID(args)
+def RECTANGLE (a, b):
+    return CUBOID([a, b])
 
 
 HEXAHEDRON=Plasm.cube(3,-1.0/math.sqrt(3.0),+1.0/math.sqrt(3.0))
@@ -1045,44 +1045,52 @@ if self_test:
 # TRANSLATE
 # ===================================================
 
-def TRANSLATE (axis):
-    def TRANSLATE1 (axis,values):
-        def TRANSLATE2 (axis,values,pol):
+def PLASM_TRANSLATE (axis):
+    def PLASM_TRANSLATE1 (axis,values):
+        def PLASM_TRANSLATE2 (axis,values,pol):
             axis    = [axis    ] if ISNUM(axis    ) else axis
             values= [values] if ISNUM(values) else values
             vt= Vecf(max(axis))
             for a,t in zip(axis,values):vt.set(a,t)
             return Plasm.translate(pol, vt)
-        return lambda pol: TRANSLATE2(axis,values,pol)    
-    return lambda values: TRANSLATE1(axis,values)
-T = TRANSLATE
+        return lambda pol: PLASM_TRANSLATE2(axis,values,pol)    
+    return lambda values: PLASM_TRANSLATE1(axis,values)
+PLASM_T = PLASM_TRANSLATE
 
 
 if self_test: 
-	assert(Plasm.limits(T(3)(2)(Plasm.cube(2)))==Boxf(Vecf(1,0,0,2),Vecf(1,1,1,2)))
-	assert(Plasm.limits(T([1,3])([1,2])(Plasm.cube(2)))==Boxf(Vecf(1,1,0,2),Vecf(1,2,1,2)))
+	assert(Plasm.limits(T(0, 0, 2)(Plasm.cube(2)))==Boxf(Vecf(1,0,0,2),Vecf(1,1,1,2)))
+	assert(Plasm.limits(T(1, 0, 2)(Plasm.cube(2)))==Boxf(Vecf(1,1,0,2),Vecf(1,2,1,2)))
+
+# NEW DEFINITION:
+def TRANSLATE(t1, t2, t3):
+    return PLASM_TRANSLATE([1, 2, 3])([t1, t2, t3])
+T = TRANSLATE
 
 # ===================================================
 # SCALE
 # ===================================================
 
-def SCALE (axis):
-    def SCALE1 (axis,values):
-        def SCALE2 (axis,values,pol):
+def PLASM_SCALE (axis):
+    def PLASM_SCALE1 (axis,values):
+        def PLASM_SCALE2 (axis,values,pol):
             axis    = [axis    ] if ISNUM(axis    ) else axis
             values= [values] if ISNUM(values) else values
             dim=max(axis)
             vs = Vecf([1 for x in range(dim+1)]);vs.set(0,0.0)
             for a,t in zip(axis,values):vs.set(a,t)
             return Plasm.scale(pol, vs)
-        return lambda pol: SCALE2(axis,values,pol)    
-    return lambda values: SCALE1(axis,values)
-S = SCALE
-
+        return lambda pol: PLASM_SCALE2(axis,values,pol)    
+    return lambda values: PLASM_SCALE1(axis,values)
+PLASM_S = PLASM_SCALE
 
 if self_test: 
-	assert(Plasm.limits(S(3)(2)(Plasm.cube(3)))==Boxf(Vecf(1,0,0,0),Vecf(1,1,1,2)))
-	assert(Plasm.limits(S([3,1])([4,2])(Plasm.cube(3)))==Boxf(Vecf(1,0,0,0),Vecf(1,2,1,4)))
+	assert(Plasm.limits(PLASM_S(3)(2)(Plasm.cube(3)))==Boxf(Vecf(1,0,0,0),Vecf(1,1,1,2)))
+	assert(Plasm.limits(PLASM_S([3,1])([4,2])(Plasm.cube(3)))==Boxf(Vecf(1,0,0,0),Vecf(1,2,1,4)))
+
+# NEW DEFINITION:
+def SCALE(a, b, c):
+    return PLASM_SCALE([1, 2, 3])([a, b, c])
 
 # ===================================================
 # ROTATE
@@ -1101,11 +1109,14 @@ if self_test:
 	assert(Plasm.limits(PLASM_ROTATE([1,2])(PI/2)(Plasm.cube(2))).fuzzyEqual(Boxf(Vecf(1,-1,0),Vecf(1,0,+1))))
 
 # NEW DEFINITION
-def ROTATE(axis_index):
-    if axis_index == 1: plane_indexes = [2, 3]
-    elif axis_index == 2: plane_indexes = [1, 3]
+def ROTATE(axis, angle):
+    if axis == 1: plane_indexes = [2, 3]
+    elif axis == 2: plane_indexes = [1, 3]
     else: plane_indexes = [1, 2]
-    return PLASM_ROTATE(plane_indexes)
+    def PLASM_ROTATE2 (pol):
+        dim = max(plane_indexes)
+	return Plasm.rotate(pol, dim, plane_indexes[0] , plane_indexes[1], angle)
+    return PLASM_ROTATE2    
 
 R = ROTATE
 
@@ -1186,8 +1197,8 @@ def STRUCT(seq,nrec=0):
 	return Plasm.Struct(pols)     
 
 if self_test: 
-	assert(Plasm.limits(STRUCT([Plasm.cube(2)  ,  T([1,2])([1,1]) ,  T([1,2])([1,1]) ,  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,4,4))))
-	assert(Plasm.limits(STRUCT([  T([1,2])([1,1]),T([1,2])([1,1]),Plasm.cube(2)  ,  T([1,2])([1,1])  ,T([1,2])([1,1]),  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,2,2),Vecf(1,6,6))))
+	assert(Plasm.limits(STRUCT([Plasm.cube(2)  ,  T(1, 1, 0) ,  T(1, 1, 0) ,  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,4,4))))
+	assert(Plasm.limits(STRUCT([  T(1, 1, 0),T(1, 1, 0),Plasm.cube(2)  ,  T(1, 1, 0)  ,T(1, 1, 0),  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,2,2),Vecf(1,6,6))))
 
 
 
@@ -1317,7 +1328,7 @@ def SIZE (List):
 
 if self_test: 
 	assert(SIZE(1)(Plasm.cube(2))==1)
-	assert(SIZE([1,3])(SCALE([1,2,3])([1,2,3])(Plasm.cube(3)))==[1,3])
+	assert(SIZE([1,3])(SCALE(1,2,3)(Plasm.cube(3)))==[1,3])
 
 # ===================================================
 # MIN/MAX/MED
@@ -1343,9 +1354,9 @@ def MED  (List):
 
 if self_test: 
 	assert(MIN(1)(Plasm.cube(2))==0)
-	assert(MIN([1,3])(TRANSLATE([1,2,3])([10,20,30])(Plasm.cube(3)))==[10,30])
+	assert(MIN([1,3])(TRANSLATE(10, 20, 30)(Plasm.cube(3)))==[10,30])
 	assert(MAX(1)(Plasm.cube(2))==1)
-	assert(MAX([1,3])(TRANSLATE([1,2,3])([10,20,30])(Plasm.cube(3)))==[11,31])
+	assert(MAX([1,3])(TRANSLATE(10, 20, 30)(Plasm.cube(3)))==[11,31])
 	assert(MED(1)(Plasm.cube(2))==0.5)
 	assert(MED([1,3])(Plasm.cube(3))==[0.5,0.5])
 
@@ -1612,8 +1623,8 @@ def PLASM_TUBE (args):
     return PLASM_TUBE0
 
 # NEW DEFINITION
-def TUBE(args, division = 64):
-    return PLASM_TUBE(args)(division)
+def TUBE(r1, r2, h, division = 64):
+    return PLASM_TUBE([r1, r2, h])(division)
 
 
 
@@ -1633,8 +1644,8 @@ if self_test:
     assert Plasm.limits(PLASM_CIRCLE(1.0)([8,8]))==Boxf(Vecf(1,-1,-1),Vecf(1,+1,+1))
 
 # NEW DEFINITION
-def CIRCLE(args, division = 64):
-    return PLASM_CIRCLE(args)(division)
+def CIRCLE(r, division = 64):
+    return PLASM_CIRCLE(r)(division)
 
 # =============================================
 # MY_CYLINDER 
@@ -1655,8 +1666,8 @@ if self_test:
    assert(Plasm.limits(PLASM_CYLINDER([1.0,2.0])(8)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,2))))
 
 # NEW DEFINITION
-def CYLINDER(args, division = 64):
-    return PLASM_CYLINDER(args)(division)
+def CYLINDER(r, h, division = 64):
+    return PLASM_CYLINDER([r, h])(division)
 
 
 
@@ -1717,8 +1728,8 @@ if self_test:
    plasm_config.pop()
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def TORUS_SURFACE(radiuses, divisions = [32, 32]):
-    return PLASM_TORUS(radiuses)(divisions)
+def TORUS_SURFACE(r1, r2, divisions = [32, 32]):
+    return PLASM_TORUS([r1, r2])(divisions)
 
 # =============================================
 # TORUS - SOLID
@@ -1741,8 +1752,8 @@ if self_test:
 	VIEW(SKELETON(1)(PLASM_SOLIDTORUS([1.5,2])([18,24,1])))
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def TORUS(radiuses, divisions = [32, 32]):
-    return PLASM_SOLIDTORUS(radiuses)([divisions[0], divisions[1], 1])
+def TORUS(r1, r2, divisions = [32, 32]):
+    return PLASM_SOLIDTORUS([r1, r2])([divisions[0], divisions[1], 1])
 
 
 # =============================================
@@ -1753,7 +1764,7 @@ def PLASM_CONE (args):
      radius , height = args
      def PLASM_CONE0(N):
         basis = PLASM_CIRCLE(radius)([N,1])
-        apex = T(3)(height)(SIMPLEX(0))
+        apex = T(0, 0, height)(SIMPLEX(0))
         return  JOIN([basis, apex])
      return PLASM_CONE0
 
@@ -1761,8 +1772,8 @@ if self_test:
    assert Plasm.limits(PLASM_CONE([1.0,3.0])(16)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,3)))
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def CONE(args, division = 32):
-    return PLASM_CONE(args)(division)
+def CONE(r, h, division = 32):
+    return PLASM_CONE([r, h])(division)
 
 
 # =============================================
@@ -1783,9 +1794,9 @@ def PLASM_TRUNCONE (args):
 	return PLASM_TRUNCONE0
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def TRUNCONE(args, divisions = 32):
+def TRUNCONE(r1, r2, h, divisions = 32):
     # Changing to a solid:
-    return JOIN(PLASM_TRUNCONE(args)(divisions))
+    return JOIN(PLASM_TRUNCONE([r1, r2, h])(divisions))
 
 
 # =============================================
@@ -1797,14 +1808,14 @@ def build_DODECAHEDRON ():
 	g = 0.5*(math.sqrt(5.0)-1)
 	top = MKPOL([[[1-g,1,0-g],[1+g,1,0-g]],[[1, 2]],[[1]]])
 	basis = EMBED(1)(CUBOID([2, 2]))
-	roof = T([1, 2, 3])([-1,-1,-1])(JOIN([basis, top]))
-	roofpair = STRUCT([roof, R([2, 3])(PI), roof])
-	return S([1, 2, 3])([a, a, a])(STRUCT([ 
+	roof = T(-1,-1,-1)(JOIN([basis, top]))
+	roofpair = STRUCT([roof, R(1, PI), roof])
+	return PLASM_S([1, 2, 3])([a, a, a])(STRUCT([ 
 		Plasm.cube(3,-1,+1),
 		roofpair, 
-		R([1, 3])(PI/2), R([1, 2])(PI/2), 
+		R(2, PI/2), R(3, PI/2), 
 		roofpair, 
-		R([1, 2])(PI/2), R([2, 3])(PI/2), 
+		R(3, PI/2), R(1, PI/2), 
 		roofpair]))
 
 DODECAHEDRON = build_DODECAHEDRON()
@@ -1817,10 +1828,10 @@ DODECAHEDRON = build_DODECAHEDRON()
 def build_ICOSAHEDRON():
     g = 0.5*(math.sqrt(5)-1)
     b = 2.0/(math.sqrt(5*math.sqrt(5)))
-    rectx = T([1, 2])([-g, -1])(CUBOID([2*g, 2]))
-    recty = R([1, 3])(PI/2)(R([1, 2])(PI/2)(rectx))
-    rectz = R([2, 3])(PI/2)(R([1, 2])(PI/2)(rectx))
-    return S([1, 2, 3])([b, b, b])(JOIN([rectx, recty, rectz]))
+    rectx = T(-g, -1, 0)(CUBOID([2*g, 2]))
+    recty = R(2, PI/2)(R(3, PI/2)(rectx))
+    rectz = R(1, PI/2)(R(3, PI/2)(rectx))
+    return PLASM_S([1, 2, 3])([b, b, b])(JOIN([rectx, recty, rectz]))
 
 ICOSAHEDRON = build_ICOSAHEDRON()
 
@@ -1830,7 +1841,7 @@ ICOSAHEDRON = build_ICOSAHEDRON()
 # =============================================
 
 def build_TETRAHEDRON():
-	return JOIN([  T(3)(-1.0/3.0)(NGON(3)),  MK([0, 0, 1])  ])
+	return JOIN([  T(0, 0, -1.0/3.0)(NGON(3)),  MK([0, 0, 1])  ])
 
 TETRAHEDRON = build_TETRAHEDRON()
 
@@ -1875,7 +1886,7 @@ def TRIANGLEFAN (points):
 
 def MIRROR (D):
     def MIRROR0 (pol):
-        return  STRUCT([S(D)(-1)(pol),pol])
+        return  STRUCT([PLASM_S(D)(-1)(pol),pol])
     return MIRROR0
 
 
@@ -1895,7 +1906,7 @@ def POLYMARKER (type,MARKERSIZE=0.1):
 	def POLYMARKER_POINTS(points):
 		dim=len(points[0])
 		axis=range(1,dim+1)
-		return Plasm.Struct([T(axis)(point)(marker) for point in points])
+		return Plasm.Struct([PLASM_T(axis)(point)(marker) for point in points])
 	return POLYMARKER_POINTS
 
 
@@ -2025,7 +2036,7 @@ def RULEDSURFACE (args):
 if self_test:
 	alpha= lambda point: [point[0],point[0],       0 ]
 	beta = lambda point: [      -1,      +1,point[0] ]
-	domain= T([1,2])([-1,-1])(Plasm.power(INTERVALS(2)(10),INTERVALS(2)(10)))
+	domain= T(-1, -1, 0)(Plasm.power(INTERVALS(2)(10),INTERVALS(2)(10)))
 	plasm_config.push(1e-4)
 	VIEW(MAP(RULEDSURFACE([alpha,beta]))(domain))
 	plasm_config.pop()
@@ -2240,7 +2251,7 @@ def PERMUTAHEDRON (d):
 	cells=[range(1,len(vertices)+1)]
 	object=MKPOL([vertices,cells,[[1]]])
 	object=Plasm.translate(object,Vecf([0] + center)*-1)
-	for i in range(1,d+1): object=R([i,d+1])(PI/4)(object)
+	for i in range(1,d+1): object=PLASM_R([i,d+1])(PI/4)(object)
 	object=PROJECT(1)(object)
 	return object
 
@@ -2282,9 +2293,9 @@ def SCHLEGEL3D (D):
 
 
 if self_test:
-	VIEW(SCHLEGEL3D(0.2)(SKEL_1(T([1,2,3,4])([-1.0/3.0,-1.0/3.0,-1,+1])(SIMPLEX(4)))))
-	VIEW(SCHLEGEL3D(0.2)(SKEL_1(T([1,2,3,4])([-1,-1,-1,1])(CUBOID([2,2,2,2])))))
-	VIEW(SCHLEGEL3D(0.2)(SKEL_1(T([1,2,3,4])([-1.0/3.0,-1.0/3.0,-1,+1])(Plasm.power(SIMPLEX(2),SIMPLEX(2))))))
+	VIEW(SCHLEGEL3D(0.2)(SKEL_1(PLASM_T([1,2,3,4])([-1.0/3.0,-1.0/3.0,-1,+1])(SIMPLEX(4)))))
+	VIEW(SCHLEGEL3D(0.2)(SKEL_1(PLASM_T([1,2,3,4])([-1,-1,-1,1])(CUBOID([2,2,2,2])))))
+	VIEW(SCHLEGEL3D(0.2)(SKEL_1(PLASM_T([1,2,3,4])([-1.0/3.0,-1.0/3.0,-1,+1])(Plasm.power(SIMPLEX(2),SIMPLEX(2))))))
 
 # ===================================================
 # FINITECONE
@@ -2299,11 +2310,14 @@ def FINITECONE (pol):
 # PRISM
 # ===================================================
 
-def PRISM (HEIGHT):
-    def PRISM0 (BASIS):
+def PLASM_PRISM (HEIGHT):
+    def PLASM_PRISM0 (BASIS):
         return Plasm.power(BASIS,QUOTE([HEIGHT]))
-    return PRISM0
+    return PLASM_PRISM0
 
+# NEW DEFINITION
+def PRISM(basis, h):
+    return PLASM_PRISM(h)(basis)
 
 # ===================================================
 # CROSSPOLYTOPE
@@ -2352,9 +2366,9 @@ def ROTN (args):
 	ISUP = COMP([AND, CONS([COMP([C(EQ)(0), S1]), COMP([C(EQ)(0), S2]), COMP([COMP([NOT, C(EQ)(0)]), S3])])])
 
 	if N[0]==0 and N[1]==0:
-		return R([1, 2])(alpha)
+		return R(3, alpha)
 	else:
-		return COMP([MAT(TRANS(Q)),R([1,2])(alpha),MAT(Q)])
+		return COMP([MAT(TRANS(Q)),R(3, alpha),MAT(Q)])
 
 
 # ===================================================
@@ -2365,11 +2379,11 @@ MKVERSORK = TOP([PLASM_CYLINDER([1.0/100.0, 7.0/8.0])(6),PLASM_CONE([1.0/16.0,1.
 
 def MKVECTOR (P1):
     def MKVECTOR0 (P2):
-        TR = T([1, 2, 3])(P1)
+        TR = PLASM_T([1, 2, 3])(P1)
         U = VECTDIFF([P2,P1])
         ALPHA = ACOS((INNERPROD([[0, 0, 1],UNITVECT(U)])))
         B = VECTNORM(U)
-        SC = S([1, 2, 3])([B, B, B])
+        SC = PLASM_S([1, 2, 3])([B, B, B])
         N = VECTPROD([[0, 0, 1],U])
         ROT = ROTN([ALPHA, N])
         return (COMP([COMP([TR, ROT]), SC]))(MKVERSORK)
@@ -2664,7 +2678,7 @@ def LOCATE (args):
 	pol, a, distances = args
 	ret=[]
 	for d in distances:
-		ret+=[T(a)(d),pol]
+		ret+=[PLASM_T(a)(d),pol]
 	return STRUCT(ret)
 
 
@@ -2688,11 +2702,11 @@ SOUTH    = CONS([CONS([MIN(1), MIN(2)]), CONS([MAX(1), MIN(2)])])
 WEST     = CONS([CONS([MIN(1), MAX(2)]), CONS([MIN(1), MIN(2)])])
 EAST     = CONS([CONS([MAX(1), MIN(2)]), CONS([MAX(1), MAX(2)])])
 
-MXMY = COMP([STRUCT, CONS([COMP([COMP([T([1, 2]), AA(RAISE(DIFF))]), MED([1, 2])]), ID])])
-MXBY = COMP([STRUCT, CONS([COMP([COMP([T([1, 2]), AA(RAISE(DIFF))]), CONS([MED(1), MIN(2)])]), ID])])
-MXTY = COMP([STRUCT, CONS([COMP([COMP([T([1, 2]), AA(RAISE(DIFF))]), CONS([MED(1), MAX(2)])]), ID])])
-LXMY = COMP([STRUCT, CONS([COMP([COMP([T([1, 2]), AA(RAISE(DIFF))]), CONS([MIN(1), MED(2)])]), ID])])
-RXMY = COMP([STRUCT, CONS([COMP([COMP([T([1, 2]), AA(RAISE(DIFF))]), CONS([MAX(1), MED(2)])]), ID])])
+MXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), MED([1, 2])]), ID])])
+MXBY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), CONS([MED(1), MIN(2)])]), ID])])
+MXTY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), CONS([MED(1), MAX(2)])]), ID])])
+LXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), CONS([MIN(1), MED(2)])]), ID])])
+RXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), CONS([MAX(1), MED(2)])]), ID])])
 
 
 # ===================================================
@@ -2884,7 +2898,7 @@ def EXTRUSION (angle):
 			dim = DIM(pol)
 			cells=SPLITCELLS( SKELETON(dim)(pol) )
 			slice=[EMBED(1)(c) for c in cells]
-			tensor=COMP([T(dim+1)(1.0/height),R([dim-1,dim])(angle/height)])
+			tensor=COMP([PLASM_T(dim+1)(1.0/height),PLASM_R([dim-1,dim])(angle/height)])
 			layer=Plasm.Struct([JOIN([p,tensor(p)]) for p in slice])
 			return (COMP([COMP([STRUCT, CAT]), DIESIS(height)]))([layer, tensor])
 		return EXTRUSION0
@@ -2898,7 +2912,7 @@ def EX (args):
 	x1 ,x2 = args
 	def EX0 (pol):
 		dim = DIM(pol)
-		return T(dim+1)(x1)(S(dim+1)(x2-x1)(EXTRUSION(0.0)(1.0)(pol)))
+		return PLASM_T(dim+1)(x1)(PLASM_S(dim+1)(x2-x1)(EXTRUSION(0.0)(1.0)(pol)))
 	return EX0
 
 # ===================================================
@@ -2920,7 +2934,7 @@ def LEX (args):
 		ret=EXTRUSION(0)(1)(pol)
 		ret=SHEARTENSOR(x2-x1)(ret)
 		ret=S(DIM(pol)+1)(x2-x1)(ret)
-		ret=T(DIM(pol)+1)(x1)(ret)
+		ret=PLASM_T(DIM(pol)+1)(x1)(ret)
 		return ret
 	return LEX0
 
@@ -2934,22 +2948,22 @@ def SEX (args):
 		def SEX0 (pol):
 			dim = DIM(pol)
 			ret=EXTRUSION(x2-x1)(height)(pol)
-			ret=S(dim+1)(x2-x1)(ret)
-			ret=R([dim,dim-1])(x1)(ret)
+			ret=PLASM_S(dim+1)(x2-x1)(ret)
+			ret=PLASM_R([dim,dim-1])(x1)(ret)
 			return ret
 		return SEX0
 	return SEX1
 
 if self_test:
 
-	mypol1 = T([1,2])([-5,-5])(CUBOID([10,10]))
-	mypol2 = S([1,2])([0.9,0.9])(mypol1)
+	mypol1 = T(-5,-5,0)(CUBOID([10,10]))
+	mypol2 = PLASM_S(0.9,0.9,0)(mypol1)
 	mypol3 = DIFF([mypol1,mypol2]);
 
 	VIEW(STRUCT([
-		  EX([0,10])(mypol3), T(1)(12) ,
-		  LEX([0,10])(mypol3), T(1)(25) ,
-		   S(3)(3)(SEX([0,PI])(16)(mypol3))
+		  EX([0,10])(mypol3), PLASM_T(1)(12) ,
+		  LEX([0,10])(mypol3), PLASM_T(1)(25) ,
+		   PLASM_S(3)(3)(SEX([0,PI])(16)(mypol3))
 		]))
 
 # ===================================================
@@ -3004,7 +3018,7 @@ if self_test:
 	vertices = [[0,0],[1,0],[1,0.5],[0.5,0.5],[0.5,1],[0,1]]
 	pol1D = MKPOL([vertices,[[1,2],[2,3],[3,4],[4,5],[5,6],[6,1]],[[1],[2],[3],[4],[5],[6]]])
 	pol2D = MKPOL( [vertices,[[1,2,3,4],[4,5,6,1]],[[1,2]]])
-	Min0 = STRUCT([T([1,2])(v)(S([1,2])([0.1,0.1])(B)) for v in vertices ])
+	Min0 = STRUCT([PLASM_T([1,2])(v)(PLASM_S([1,2])([0.1,0.1])(B)) for v in vertices ])
 	Min1 = MINKOWSKI ([[0.1*-1.0/2.0,0.1*-1*math.sqrt(3.0/2.0)],[0.1*-1.0/2.0,0.1*math.sqrt(3.0/2.0)],[0.1*1,0.1*0]])(pol1D)
 	Min2 = MINKOWSKI ([[0.1*-1.0/2.0,0.1*-1*math.sqrt(3.0/2.0)],[0.1*-1.0/2.0,0.1*math.sqrt(3.0/2.0)],[0.1*1,0.1*0]])(pol2D)
 	A=Plasm.power(Min2,Q(0.05))
@@ -3041,7 +3055,7 @@ if self_test:
 	cells = [[1,2],[2,3],[3,4],[4,1],[5,6],[6,7],[7,8],[8,5],[1,5],[2,6],[3,7],[4,8],[5,9],[8,9],[6,10],[7,10], [9,10]]
 	pols = [[1]]
 	House = MKPOL([verts,cells,pols])
-	out=Plasm.Struct([ OFFSET([0.1,0.2,0.1])(House), T(1)(1.2*SIZE(1)(House))(House)])
+	out=Plasm.Struct([ OFFSET([0.1,0.2,0.1])(House), PLASM_T(1)(1.2*SIZE(1)(House))(House)])
 	VIEW(out)
 
 
@@ -3095,7 +3109,7 @@ def PLANE (args):
 	axis=VECTPROD([[0, 0, 1],normal])
 	angle = math.acos((INNERPROD([[0, 0, 1],normal])))
 
-	geometry=T([1,2,3])(p0)(ROTN([angle, axis])(T([1,2])([-1*side1,-1*side2]) (CUBOID([2*side1, 2*side2]))))
+	geometry=PLASM_T([1,2,3])(p0)(ROTN([angle, axis])(PLASM_T([1,2])([-1*side1,-1*side2]) (CUBOID([2*side1, 2*side2]))))
 	return  [normal, p0, geometry]
 
 
@@ -3142,8 +3156,8 @@ def ELLIPSE (args):
         C = 0.5*math.sqrt(2)
         mapping = RATIONALBEZIER([[A, 0, 1], [A*C, B*C, C], [0, B, 1]])
         quarter = MAP(mapping)((INTERVALS(1.0)(N)))
-        half = STRUCT([quarter, S(2)(-1)(quarter)])
-        return STRUCT([half, S(1)(-1)(half)])
+        half = STRUCT([quarter, PLASM_S(2)(-1)(quarter)])
+        return STRUCT([half, PLASM_S(1)(-1)(half)])
     return ELLIPSE0
 
 
@@ -3226,7 +3240,7 @@ def BEZIERSTRIPE (args):
 
 		return ret
 
-	domain=S(2)(width)(T(1)(0.00001)(Plasm.power(INTERVALS(1)(n),INTERVALS(1)(1))))
+	domain=PLASM_S(2)(width)(PLASM_T(1)(0.00001)(Plasm.power(INTERVALS(1)(n),INTERVALS(1)(1))))
 	return MAP(map_fn)(domain)
 
 if self_test:

@@ -1590,7 +1590,7 @@ def PLASM_RING (radius):
     return PLASM_RING0
 
 if self_test:
-    assert Plasm.limits(RING([0.5,1])([8,8]))==Boxf(Vecf(1,-1,-1),Vecf(1,+1,+1))
+    assert Plasm.limits(PLASM_RING([0.5,1])([8,8]))==Boxf(Vecf(1,-1,-1),Vecf(1,+1,+1))
 
 # NEW DEFINITION
 def RING(args, division = 64):
@@ -1599,7 +1599,7 @@ def RING(args, division = 64):
 def PLASM_TUBE (args):
     r1 , r2 , height= args
     def PLASM_TUBE0 (N):
-        return Plasm.power(RING([r1, r2])([N, 1]),QUOTE([height]))
+        return Plasm.power(PLASM_RING([r1, r2])([N, 1]),QUOTE([height]))
     return PLASM_TUBE0
 
 # NEW DEFINITION

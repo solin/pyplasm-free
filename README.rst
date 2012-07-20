@@ -11,7 +11,7 @@ Linux compilation (Ubuntu/Debian .deb)
 
 Get Plasm::
 
-    git clone git://github.com/femhub/plasm.git
+    git clone git://github.com/femhub/pyplasm.git
 
 Install FreeImage developer library::
 

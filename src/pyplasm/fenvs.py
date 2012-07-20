@@ -917,6 +917,15 @@ if self_test:
 def CUBE (side):
     return CUBOID([side, side, side])
 
+def SQUARE (side):
+    return CUBOID([side, side])
+
+def BRICK (args):
+    return CUBOID(args)
+
+def RECTANGLE (args):
+    return CUBOID(args)
+
 
 HEXAHEDRON=Plasm.cube(3,-1.0/math.sqrt(3.0),+1.0/math.sqrt(3.0))
 

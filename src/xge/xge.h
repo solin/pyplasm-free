@@ -67,6 +67,7 @@ typedef unsigned long long int      uint64;
 #include <limits> 
 #include <algorithm>
 #include <cctype>
+#include <stddef.h>
 
 //Some defines
 #define SmartPointer std::tr1::shared_ptr

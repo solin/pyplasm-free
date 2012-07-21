@@ -1644,7 +1644,7 @@ if self_test:
     assert Plasm.limits(PLASM_CIRCLE(1.0)([8,8]))==Boxf(Vecf(1,-1,-1),Vecf(1,+1,+1))
 
 # NEW DEFINITION
-def CIRCLE(r, division = 64):
+def CIRCLE(r, division = [64, 32]):
     return PLASM_CIRCLE(r)(division)
 
 # =============================================
@@ -1772,7 +1772,7 @@ if self_test:
    assert Plasm.limits(PLASM_CONE([1.0,3.0])(16)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,3)))
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def CONE(r, h, division = 32):
+def CONE(r, h, division = 64):
     return PLASM_CONE([r, h])(division)
 
 
@@ -1794,7 +1794,7 @@ def PLASM_TRUNCONE (args):
 	return PLASM_TRUNCONE0
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def TRUNCONE(r1, r2, h, divisions = 32):
+def TRUNCONE(r1, r2, h, divisions = 64):
     # Changing to a solid:
     return JOIN(PLASM_TRUNCONE([r1, r2, h])(divisions))
 

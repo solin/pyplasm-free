@@ -536,10 +536,10 @@ if self_test:
 # n-ary DIFFerence 
 # ===================================================
 
-def DIFF(args):
+def PLASM_DIFF(args):
 
 	if isinstance(args,list) and ISPOL(args[0]): 
-		return DIFFERENCE(args)
+		return  PLASM_DIFFERENCE(args)
 
 	if ISNUM(args): 
 		return -1 * args
@@ -562,7 +562,15 @@ def DIFF(args):
 
 
 if self_test: 
-	assert(DIFF(2)==-2 and DIFF([1,2,3])==-4 and DIFF([[1,2,3],[1,2,3]])==[0,0,0])
+	assert( PLASM_DIFF(2)==-2 and  PLASM_DIFF([1,2,3])==-4 and  PLASM_DIFF([[1,2,3],[1,2,3]])==[0,0,0])
+
+# NEW DEFINITION:
+# With two arguments, use is possible without brackets:
+def DIFF(b, a = None):
+    if a != None:  # if there are two arguments, form a list
+        return PLASM_DIFF([b, a])
+    else:  # if single argument, then it must be a list
+        return PLASM_DIFF(b)
 
 # ===================================================
 # n-ary PRODuct 
@@ -1215,7 +1223,7 @@ def INTERSECTION (objs_list):
         return Plasm.boolop(BOOL_CODE_AND, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
 
 #also -, or DIFF, can be used to indicates DIFFERENCE
-def DIFFERENCE (objs_list):
+def  PLASM_DIFFERENCE (objs_list):
         return Plasm.boolop(BOOL_CODE_DIFF, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
         
 # xor
@@ -1225,7 +1233,7 @@ def XOR (objs_list):
 if self_test: 
 	assert(Plasm.limits(UNION([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1.5,1.5))))
 	assert(Plasm.limits(INTERSECTION([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0.5,0.5),Vecf(1,1,1))))
-	assert(Plasm.limits(DIFFERENCE([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1,1))))
+	assert(Plasm.limits( PLASM_DIFFERENCE([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1,1))))
 	assert(Plasm.limits(XOR([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1.5,1.5))))
 
 
@@ -1645,8 +1653,10 @@ if self_test:
 
 # NEW DEFINITION
 def CIRCLE(r, division = [64, 32]):
-    return PLASM_CIRCLE(r)(division)
-
+    if type(division) == list: 
+        return PLASM_CIRCLE(r)(division)
+    else:
+        return PLASM_CIRCLE(r)([division, 32])
 # =============================================
 # MY_CYLINDER 
 # =============================================
@@ -1728,7 +1738,7 @@ if self_test:
    plasm_config.pop()
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def TORUS_SURFACE(r1, r2, divisions = [32, 32]):
+def TORUS_SURFACE(r1, r2, divisions = [64, 32]):
     return PLASM_TORUS([r1, r2])(divisions)
 
 # =============================================
@@ -1752,7 +1762,7 @@ if self_test:
 	VIEW(SKELETON(1)(PLASM_SOLIDTORUS([1.5,2])([18,24,1])))
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def TORUS(r1, r2, divisions = [32, 32]):
+def TORUS(r1, r2, divisions = [64, 32]):
     return PLASM_SOLIDTORUS([r1, r2])([divisions[0], divisions[1], 1])
 
 
@@ -2413,7 +2423,7 @@ def ORTHO (matrix):
 	return SCALARMATPROD([0.5,SUM([matrix,TRANS(matrix)])])
 
 def SKEW (matrix):
-    return SCALARMATPROD([0.5,DIFF([matrix,TRANS(matrix)])])
+    return SCALARMATPROD([0.5, PLASM_DIFF([matrix,TRANS(matrix)])])
 
 
 if self_test:
@@ -2713,11 +2723,11 @@ SOUTH    = CONS([CONS([MIN(1), MIN(2)]), CONS([MAX(1), MIN(2)])])
 WEST     = CONS([CONS([MIN(1), MAX(2)]), CONS([MIN(1), MIN(2)])])
 EAST     = CONS([CONS([MAX(1), MIN(2)]), CONS([MAX(1), MAX(2)])])
 
-MXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), MED([1, 2])]), ID])])
-MXBY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), CONS([MED(1), MIN(2)])]), ID])])
-MXTY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), CONS([MED(1), MAX(2)])]), ID])])
-LXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), CONS([MIN(1), MED(2)])]), ID])])
-RXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE(DIFF))]), CONS([MAX(1), MED(2)])]), ID])])
+MXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), MED([1, 2])]), ID])])
+MXBY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MED(1), MIN(2)])]), ID])])
+MXTY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MED(1), MAX(2)])]), ID])])
+LXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MIN(1), MED(2)])]), ID])])
+RXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MAX(1), MED(2)])]), ID])])
 
 
 # ===================================================
@@ -2969,7 +2979,7 @@ if self_test:
 
 	mypol1 = T(-5,-5,0)(CUBOID([10,10]))
 	mypol2 = PLASM_S(0.9,0.9,0)(mypol1)
-	mypol3 = DIFF([mypol1,mypol2]);
+	mypol3 =  PLASM_DIFF([mypol1,mypol2]);
 
 	VIEW(STRUCT([
 		  EX([0,10])(mypol3), PLASM_T(1)(12) ,

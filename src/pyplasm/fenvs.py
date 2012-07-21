@@ -1067,12 +1067,12 @@ PLASM_T = PLASM_TRANSLATE
 
 
 if self_test: 
-	assert(Plasm.limits(T(0, 0, 2)(Plasm.cube(2)))==Boxf(Vecf(1,0,0,2),Vecf(1,1,1,2)))
-	assert(Plasm.limits(T(1, 0, 2)(Plasm.cube(2)))==Boxf(Vecf(1,1,0,2),Vecf(1,2,1,2)))
+	assert(Plasm.limits(PLASM_TRANSLATE([1, 2, 3])([0, 0, 2])(Plasm.cube(2)))==Boxf(Vecf(1,0,0,2),Vecf(1,1,1,2)))
+	assert(Plasm.limits(PLASM_TRANSLATE([1, 2, 3])([1, 0, 2])(Plasm.cube(2)))==Boxf(Vecf(1,1,0,2),Vecf(1,2,1,2)))
 
 # NEW DEFINITION:
-def TRANSLATE(t1, t2, t3):
-    return PLASM_TRANSLATE([1, 2, 3])([t1, t2, t3])
+def TRANSLATE(obj, t1, t2, t3):
+    return PLASM_TRANSLATE([1, 2, 3])([t1, t2, t3])(obj)
 T = TRANSLATE
 
 # ===================================================
@@ -1097,8 +1097,8 @@ if self_test:
 	assert(Plasm.limits(PLASM_S([3,1])([4,2])(Plasm.cube(3)))==Boxf(Vecf(1,0,0,0),Vecf(1,2,1,4)))
 
 # NEW DEFINITION:
-def SCALE(a, b, c):
-    return PLASM_SCALE([1, 2, 3])([a, b, c])
+def SCALE(obj, a, b, c):
+    return PLASM_SCALE([1, 2, 3])([a, b, c])(obj)
 
 # ===================================================
 # ROTATE
@@ -1205,8 +1205,8 @@ def STRUCT(seq,nrec=0):
 	return Plasm.Struct(pols)     
 
 if self_test: 
-	assert(Plasm.limits(STRUCT([Plasm.cube(2)  ,  T(1, 1, 0) ,  T(1, 1, 0) ,  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,4,4))))
-	assert(Plasm.limits(STRUCT([  T(1, 1, 0),T(1, 1, 0),Plasm.cube(2)  ,  T(1, 1, 0)  ,T(1, 1, 0),  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,2,2),Vecf(1,6,6))))
+	assert(Plasm.limits(STRUCT([Plasm.cube(2)  ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]) ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]) ,  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,4,4))))
+	assert(Plasm.limits(STRUCT([ PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]), PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]), Plasm.cube(2)  ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0])  ,PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]),  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,2,2),Vecf(1,6,6))))
 
 
 
@@ -1336,7 +1336,7 @@ def SIZE (List):
 
 if self_test: 
 	assert(SIZE(1)(Plasm.cube(2))==1)
-	assert(SIZE([1,3])(SCALE(1,2,3)(Plasm.cube(3)))==[1,3])
+	assert(SIZE([1,3])(PLASM_SCALE([1, 2, 3])([1, 2, 3])(Plasm.cube(3)))==[1,3])
 
 # ===================================================
 # MIN/MAX/MED
@@ -1362,9 +1362,9 @@ def MED  (List):
 
 if self_test: 
 	assert(MIN(1)(Plasm.cube(2))==0)
-	assert(MIN([1,3])(TRANSLATE(10, 20, 30)(Plasm.cube(3)))==[10,30])
+	assert(MIN([1,3])(PLASM_TRANSLATE([1, 2, 3])([10, 20, 30])(Plasm.cube(3)))==[10,30])
 	assert(MAX(1)(Plasm.cube(2))==1)
-	assert(MAX([1,3])(TRANSLATE(10, 20, 30)(Plasm.cube(3)))==[11,31])
+	assert(MAX([1,3])(PLASM_TRANSLATE([1, 2, 3])([10, 20, 30])(Plasm.cube(3)))==[11,31])
 	assert(MED(1)(Plasm.cube(2))==0.5)
 	assert(MED([1,3])(Plasm.cube(3))==[0.5,0.5])
 
@@ -1409,21 +1409,35 @@ def ALIGN (args):
         return Plasm.Struct([pol1,Plasm.translate(pol2,vt)])
     return lambda pol: ALIGN0(args,pol)
 
-TOP = ALIGN([[3, MAX, MIN], [1, MED, MED], [2, MED, MED]])
-BOTTOM=ALIGN([[3, MIN, MAX], [1, MED, MED], [2, MED, MED]])
-LEFT=ALIGN([[1, MIN, MAX], [3, MIN, MIN]])
-RIGHT=ALIGN([[1, MAX, MIN], [3, MIN, MIN]])
-UP=ALIGN([[2, MAX, MIN], [3, MIN, MIN]])
-DOWN=ALIGN([[2, MIN, MAX], [3, MIN, MIN]])
+PLASM_TOP = ALIGN([[3, MAX, MIN], [1, MED, MED], [2, MED, MED]])
+PLASM_BOTTOM=ALIGN([[3, MIN, MAX], [1, MED, MED], [2, MED, MED]])
+PLASM_LEFT=ALIGN([[1, MIN, MAX], [3, MIN, MIN]])
+PLASM_RIGHT=ALIGN([[1, MAX, MIN], [3, MIN, MIN]])
+PLASM_UP=ALIGN([[2, MAX, MIN], [3, MIN, MIN]])
+PLASM_DOWN=ALIGN([[2, MIN, MAX], [3, MIN, MIN]])
 
 if self_test: 
    assert(Plasm.limits(ALIGN([3,MAX,MIN])([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,0,0,0),Vecf(1,1,1,2)))
-   assert(Plasm.limits(TOP([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,0,0,0),Vecf(1,1,1,2)))
-   assert(Plasm.limits(BOTTOM([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,0,0,-1),Vecf(1,1,1,1)))
-   assert(Plasm.limits(LEFT([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,-1,0,0),Vecf(1,1,1,1)))
-   assert(Plasm.limits(RIGHT([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,0,0,0),Vecf(1,2,1,1)))
-   assert(Plasm.limits(UP([Plasm.cube(3,0,1),Plasm.cube(3,5,6)]))==Boxf(Vecf(1,0,0,0),Vecf(1,6,2,1)))
-   assert(Plasm.limits(DOWN([Plasm.cube(3,0,1),Plasm.cube(3,5,6)]))==Boxf(Vecf(1,0,-1,0),Vecf(1,6,1,1)))
+   assert(Plasm.limits(PLASM_TOP([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,0,0,0),Vecf(1,1,1,2)))
+   assert(Plasm.limits(PLASM_BOTTOM([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,0,0,-1),Vecf(1,1,1,1)))
+   assert(Plasm.limits(PLASM_LEFT([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,-1,0,0),Vecf(1,1,1,1)))
+   assert(Plasm.limits(PLASM_RIGHT([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,0,0,0),Vecf(1,2,1,1)))
+   assert(Plasm.limits(PLASM_UP([Plasm.cube(3,0,1),Plasm.cube(3,5,6)]))==Boxf(Vecf(1,0,0,0),Vecf(1,6,2,1)))
+   assert(Plasm.limits(PLASM_DOWN([Plasm.cube(3,0,1),Plasm.cube(3,5,6)]))==Boxf(Vecf(1,0,-1,0),Vecf(1,6,1,1)))
+
+# NEW DEFINITIONS:
+def TOP(pol1, pol2):
+    return PLASM_TOP([pol1, pol2])
+def BOTTOM(pol1, pol2):
+    return PLASM_BOTTOM([pol1, pol2])
+def LEFT(pol1, pol2):
+    return PLASM_LEFT([pol1, pol2])
+def RIGHT(pol1, pol2):
+    return PLASM_RIGHT([pol1, pol2])
+def UP(pol1, pol2):
+    return PLASM_UP([pol1, pol2])
+def DOWN(pol1, pol2):
+    return PLASM_DOWN([pol1, pol2])
 
 # ===================================================
 # BOX of a pol complex
@@ -1774,7 +1788,7 @@ def PLASM_CONE (args):
      radius , height = args
      def PLASM_CONE0(N):
         basis = PLASM_CIRCLE(radius)([N,1])
-        apex = T(0, 0, height)(SIMPLEX(0))
+        apex = PLASM_TRANSLATE([1, 2, 3])([0, 0, height])(SIMPLEX(0))
         return  JOIN([basis, apex])
      return PLASM_CONE0
 
@@ -1818,7 +1832,7 @@ def build_DODECAHEDRON ():
 	g = 0.5*(math.sqrt(5.0)-1)
 	top = MKPOL([[[1-g,1,0-g],[1+g,1,0-g]],[[1, 2]],[[1]]])
 	basis = EMBED(1)(CUBOID([2, 2]))
-	roof = T(-1,-1,-1)(JOIN([basis, top]))
+	roof = PLASM_TRANSLATE([1, 2, 3])([-1,-1,-1])(JOIN([basis, top]))
 	roofpair = STRUCT([roof, R(1, PI), roof])
 	return PLASM_S([1, 2, 3])([a, a, a])(STRUCT([ 
 		Plasm.cube(3,-1,+1),
@@ -1838,7 +1852,7 @@ DODECAHEDRON = build_DODECAHEDRON()
 def build_ICOSAHEDRON():
     g = 0.5*(math.sqrt(5)-1)
     b = 2.0/(math.sqrt(5*math.sqrt(5)))
-    rectx = T(-g, -1, 0)(CUBOID([2*g, 2]))
+    rectx = PLASM_TRANSLATE([1, 2, 3])([-g, -1, 0])(CUBOID([2*g, 2]))
     recty = R(2, PI/2)(R(3, PI/2)(rectx))
     rectz = R(1, PI/2)(R(3, PI/2)(rectx))
     return PLASM_S([1, 2, 3])([b, b, b])(JOIN([rectx, recty, rectz]))
@@ -1851,7 +1865,7 @@ ICOSAHEDRON = build_ICOSAHEDRON()
 # =============================================
 
 def build_TETRAHEDRON():
-	return JOIN([  T(0, 0, -1.0/3.0)(NGON(3)),  MK([0, 0, 1])  ])
+	return JOIN([  PLASM_TRANSLATE([1, 2, 3])([0, 0, -1.0/3.0])(NGON(3)),  MK([0, 0, 1])  ])
 
 PLASM_TETRAHEDRON = build_TETRAHEDRON()
 
@@ -2057,7 +2071,7 @@ def RULEDSURFACE (args):
 if self_test:
 	alpha= lambda point: [point[0],point[0],       0 ]
 	beta = lambda point: [      -1,      +1,point[0] ]
-	domain= T(-1, -1, 0)(Plasm.power(INTERVALS(2)(10),INTERVALS(2)(10)))
+	domain= PLASM_TRANSLATE([1, 2, 3])([-1, -1, 0])(Plasm.power(INTERVALS(2)(10),INTERVALS(2)(10)))
 	plasm_config.push(1e-4)
 	VIEW(MAP(RULEDSURFACE([alpha,beta]))(domain))
 	plasm_config.pop()
@@ -2212,7 +2226,6 @@ def MULTEXTRUDE (P):
 	def MULTEXTRUDE0 (H):
 		return Plasm.power(P,Q(H))
 	return MULTEXTRUDE0
-
 
 
 # ======================================================
@@ -2396,7 +2409,7 @@ def ROTN (args):
 # MKVECTOR
 # ===================================================
 
-MKVERSORK = TOP([PLASM_CYLINDER([1.0/100.0, 7.0/8.0])(6),PLASM_CONE([1.0/16.0,1.0/8])(8)])
+MKVERSORK = PLASM_TOP([PLASM_CYLINDER([1.0/100.0, 7.0/8.0])(6),PLASM_CONE([1.0/16.0,1.0/8])(8)])
 
 def MKVECTOR (P1):
     def MKVECTOR0 (P2):
@@ -2977,7 +2990,7 @@ def SEX (args):
 
 if self_test:
 
-	mypol1 = T(-5,-5,0)(CUBOID([10,10]))
+	mypol1 = PLASM_T([1, 2, 3])([-5,-5,0])(CUBOID([10,10]))
 	mypol2 = PLASM_S(0.9,0.9,0)(mypol1)
 	mypol3 =  PLASM_DIFF([mypol1,mypol2]);
 
@@ -3045,7 +3058,7 @@ if self_test:
 	A=Plasm.power(Min2,Q(0.05))
 	B=Plasm.power(Min0,Q(0.70))
 	C=Plasm.power(Min1,Q(0.05))
-	VIEW(TOP([TOP([A,B]),C]) )
+	VIEW(PLASM_TOP([PLASM_TOP([A,B]),C]) )
 
 # ===================================================
 # OFFSET 

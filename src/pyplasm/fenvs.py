@@ -1843,8 +1843,19 @@ ICOSAHEDRON = build_ICOSAHEDRON()
 def build_TETRAHEDRON():
 	return JOIN([  T(0, 0, -1.0/3.0)(NGON(3)),  MK([0, 0, 1])  ])
 
-TETRAHEDRON = build_TETRAHEDRON()
+PLASM_TETRAHEDRON = build_TETRAHEDRON()
 
+# NEW DEFINITION:
+def TETRAHEDRON(a, b, c, d):
+    return CONVEXHULL([a, b, c, d])
+
+# =============================================
+# TRIANGLE
+# =============================================
+
+# NEW DEFINITION:
+def TRIANGLE(a, b, c):
+    return CONVEXHULL([a, b, c])
 
 # ===================================================
 # POLYPOINT 

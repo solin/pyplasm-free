@@ -1,14 +1,18 @@
 from pyplasm import *
 
+# Cube:
 c = CUBE(1)
 VIEW(c)
 
+# Brick:
 c = BRICK(3, 2, 1)
 VIEW(c)
 
+# Square:
 s = SQUARE(1)
 VIEW(s)
 
+# Rectangle:
 r = RECTANGLE(2, 1)
 VIEW(r) 
 
@@ -17,60 +21,46 @@ s = SPHERE(3.0)
 VIEW(s)
 
 # Circle:
-R = 5.0
-subdiv_radius = 8
-subdiv_angle = 64
-c = CIRCLE(R)
+c = CIRCLE(5.0)
 VIEW(c)
 
-t = SIMPLEX(3)
+# Tetrahedron:
+t = TETRAHEDRON([-1, 0, 0], [4, 0, 0], [0, 4, 1], [0, 1, 2])
 VIEW(t)
 
-t = SIMPLEX(2)
+# Triangle
+t = TRIANGLE([1, 1], [4, 2], [2, 4])
 VIEW(t)
 
-points = [[-1, 0, 0], [4, 0, 0], [0, 4, 1], [0, 1, 2]]
-t = CONVEXHULL(points)
-VIEW(t)
-
-points = [[1, 1], [4, 2], [2, 4]]
-t = CONVEXHULL(points)
-VIEW(t)
-
-# Polygon with N edges inscribed into circle 
-# of radius R.
-from numpy import sin, cos, pi
-N = 15
-R = 5
-p = CONVEXHULL(CIRCLE_POINTS(R, N))
-VIEW(p)
-
-points = [[-1, 0, 0], [1, 0, 0], [0, 2, 0], [0, 1, 1]]
-t = CONVEXHULL(points)
-VIEW(t)
-
+# Prism:
 # The basis can be a general 2D polygon:
-basis = CONVEXHULL([[-1, 0], [1, 0], [0, -2]])
+B = TRIANGLE([-1, 0], [1, 0], [0, -2])
 H = 2.0
-p = PRISM(basis, H)
+p = PRISM(B, H)
 VIEW(p)
 
 # Cone:
-N = 128
 R = 5
 H = 10
-cone = CONE(R, H, 64)
+cone = CONE(R, H)
 VIEW(cone)
 
+# Truncated cone:
+R1 = 5
+R2 = 4
+H = 5
+tcone = TRUNCONE(R1, R2, H)
+VIEW(tcone)
+
 # Cylinder:
-cyl = CYLINDER (0.25, 1.0, 128)
+cyl = CYLINDER (0.25, 1.0)
 VIEW(cyl)
 
 # Tube:
 r = 0.9
 R = 1.0
 L = 3.0
-tube = TUBE(r, R, L, 128)
+tube = TUBE(r, R, L)
 VIEW(tube)
 
 # Torus:
@@ -79,6 +69,13 @@ R = 5.0
 tor = TORUS(r, R)
 VIEW(tor)
 
+# Convex hull:
+# Polygon with N edges inscribed into circle 
+# of radius R.
+N = 15
+R = 5
+p = CONVEXHULL(CIRCLE_POINTS(R, N))
+VIEW(p)
 
 
 

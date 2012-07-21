@@ -501,7 +501,7 @@ def SUM(args):
 
 
 	if isinstance(args,list) and ISPOL(args[0]): 
-		return UNION(args)
+		return PLASM_UNION(args)
 	
 	if isinstance(args,list) and ISNUM(args[0]): 
 		return sum(args)
@@ -1117,14 +1117,14 @@ if self_test:
 	assert(Plasm.limits(PLASM_ROTATE([1,2])(PI/2)(Plasm.cube(2))).fuzzyEqual(Boxf(Vecf(1,-1,0),Vecf(1,0,+1))))
 
 # NEW DEFINITION
-def ROTATE(axis, angle):
+def ROTATE(obj, axis, angle):
     if axis == 1: plane_indexes = [2, 3]
     elif axis == 2: plane_indexes = [1, 3]
     else: plane_indexes = [1, 2]
     def PLASM_ROTATE2 (pol):
         dim = max(plane_indexes)
 	return Plasm.rotate(pol, dim, plane_indexes[0] , plane_indexes[1], angle)
-    return PLASM_ROTATE2    
+    return PLASM_ROTATE2(obj)    
 
 R = ROTATE
 
@@ -1167,13 +1167,13 @@ def EMBED (up_dim):
 # STRUCT
 # ===================================================
 
-def STRUCT(seq,nrec=0):
+def PLASM_STRUCT(seq,nrec=0):
 
 	if not isinstance(seq,list) : 
-		raise Exception("STRUCT must be applied to a list")
+		raise Exception("PLASM_STRUCT must be applied to a list")
 	
 	if (len(seq)==0):
-		raise Exception("STRUCT must be applied to a not empty list")
+		raise Exception("PLASM_STRUCT must be applied to a non-empty list")
 	
 	# avoid side effect
 	if (nrec==0): seq=[x for x in seq] 
@@ -1190,62 +1190,105 @@ def STRUCT(seq,nrec=0):
 	
 	# avoid deadlock, i.e. call the recursion on invalid arguments
 	if len(seq)>0 and not ISPOL(seq[0]) and not ISFUN(seq[0]):
-		raise Exception("STRUCT arguments not valid, not all elements are pols or transformations")
+		raise Exception("PLASM_STRUCT arguments not valid, not all elements are polygons or transformations")
 	
 	if len(seq)>0:
 		assert ISPOL(seq[0]) # eaten all trasformations, the next must be a pol!
-		child=STRUCT(seq,nrec+1)
+		child=PLASM_STRUCT(seq,nrec+1)
 		assert ISPOL(child)
 		if (len(transformations)>0): child=COMP(transformations)(child)
 		pols+=[child]
 	
 	if len(pols)==0:
-		raise Exception("Cannot find geometry in STRUCT, found only transformations")
+		raise Exception("Cannot find geometry in PLASM_STRUCT, found only transformations")
 	
 	return Plasm.Struct(pols)     
 
 if self_test: 
-	assert(Plasm.limits(STRUCT([Plasm.cube(2)  ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]) ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]) ,  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,4,4))))
-	assert(Plasm.limits(STRUCT([ PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]), PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]), Plasm.cube(2)  ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0])  ,PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]),  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,2,2),Vecf(1,6,6))))
+	assert(Plasm.limits(PLASM_STRUCT([Plasm.cube(2)  ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]) ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]) ,  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,4,4))))
+	assert(Plasm.limits(PLASM_STRUCT([ PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]), PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]), Plasm.cube(2)  ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0])  ,PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]),  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,2,2),Vecf(1,6,6))))
 
-
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
+def STRUCT(a, b = None):
+    if b != None:
+        return PLASM_STRUCT([a, b])
+    else: # single argument must be list
+        return PLASM_STRUCT(a)
 
 # ===================================================
 # BOOLEAN OP
 # ===================================================
 
 #also +, or SUM, can be used to indicates UNION
-def UNION (objs_list):
+def PLASM_UNION(objs_list):
         return Plasm.boolop(BOOL_CODE_OR, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
 
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
+def UNION(a, b = None):
+    if b != None:
+        return PLASM_UNION([a, b])
+    else: # single argument must be list
+        return PLASM_UNION(a)
+
+
 #also ^ can be used to indicates INTERSECTION
-def INTERSECTION (objs_list):
+def PLASM_INTERSECTION (objs_list):
         return Plasm.boolop(BOOL_CODE_AND, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
 
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
+def INTERSECTION(a, b = None):
+    if b != None:
+        return PLASM_INTERSECTION([a, b])
+    else: # single argument must be list
+        return PLASM_INTERSECTION(a)
+
+
 #also -, or DIFF, can be used to indicates DIFFERENCE
-def  PLASM_DIFFERENCE (objs_list):
+def PLASM_DIFFERENCE (objs_list):
         return Plasm.boolop(BOOL_CODE_DIFF, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
         
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
+def DIFFERENCE(a, b = None):
+    if b != None:
+        return PLASM_DIFFERENCE([a, b])
+    else: # single argument must be list
+        return PLASM_DIFFERENCE(a)
+
 # xor
-def XOR (objs_list):
+def PLASM_XOR(objs_list):
         return Plasm.boolop(BOOL_CODE_XOR, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
 
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
+def XOR(a, b = None):
+    if b != None:
+        return PLASM_XOR([a, b])
+    else: # single argument must be list
+        return PLASM_XOR(a)
+
 if self_test: 
-	assert(Plasm.limits(UNION([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1.5,1.5))))
-	assert(Plasm.limits(INTERSECTION([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0.5,0.5),Vecf(1,1,1))))
-	assert(Plasm.limits( PLASM_DIFFERENCE([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1,1))))
-	assert(Plasm.limits(XOR([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1.5,1.5))))
+	assert(Plasm.limits(PLASM_UNION([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1.5,1.5))))
+	assert(Plasm.limits(PLASM_INTERSECTION([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0.5,0.5),Vecf(1,1,1))))
+	assert(Plasm.limits(PLASM_DIFFERENCE([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1,1))))
+	assert(Plasm.limits(PLASM_XOR([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1.5,1.5))))
 
 
 # ===================================================
 # JOIN
 # ===================================================
-def JOIN (pol_list):
+def PLASM_JOIN (pol_list):
    if  ISPOL(pol_list): pol_list=[pol_list]
    return Plasm.join(pol_list,plasm_config.tolerance())
    
 if self_test: 
-	assert(Plasm.limits(JOIN([Plasm.cube(2,0,1)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1,1))))
+	assert(Plasm.limits(PLASM_JOIN([Plasm.cube(2,0,1)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1,1))))
+
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
+def JOIN(a, b = None):
+    if b != None:
+        return PLASM_JOIN([a, b])
+    else: # single argument must be list
+        return PLASM_JOIN(a)
+
 
 # ===================================================
 # also ** can be used to indicates POWER
@@ -1724,7 +1767,7 @@ def SPHERE_SURFACE(radius, divisions = [32, 32]):
 
 def SPHERE(radius, divisions = [32, 32]):
     # Making it s solid:
-    return JOIN(PLASM_SPHERE(radius)(divisions))
+    return PLASM_JOIN(PLASM_SPHERE(radius)(divisions))
 
 
 # =============================================
@@ -1789,7 +1832,7 @@ def PLASM_CONE (args):
      def PLASM_CONE0(N):
         basis = PLASM_CIRCLE(radius)([N,1])
         apex = PLASM_TRANSLATE([1, 2, 3])([0, 0, height])(SIMPLEX(0))
-        return  JOIN([basis, apex])
+        return  PLASM_JOIN([basis, apex])
      return PLASM_CONE0
 
 if self_test:
@@ -1820,7 +1863,7 @@ def PLASM_TRUNCONE (args):
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
 def TRUNCONE(r1, r2, h, divisions = 64):
     # Changing to a solid:
-    return JOIN(PLASM_TRUNCONE([r1, r2, h])(divisions))
+    return PLASM_JOIN(PLASM_TRUNCONE([r1, r2, h])(divisions))
 
 
 # =============================================
@@ -1832,14 +1875,14 @@ def build_DODECAHEDRON ():
 	g = 0.5*(math.sqrt(5.0)-1)
 	top = MKPOL([[[1-g,1,0-g],[1+g,1,0-g]],[[1, 2]],[[1]]])
 	basis = EMBED(1)(CUBOID([2, 2]))
-	roof = PLASM_TRANSLATE([1, 2, 3])([-1,-1,-1])(JOIN([basis, top]))
-	roofpair = STRUCT([roof, R(1, PI), roof])
-	return PLASM_S([1, 2, 3])([a, a, a])(STRUCT([ 
+	roof = PLASM_TRANSLATE([1, 2, 3])([-1,-1,-1])(PLASM_JOIN([basis, top]))
+	roofpair = PLASM_STRUCT([roof, PLASM_ROTATE([2, 3])(PI), roof])
+	return PLASM_S([1, 2, 3])([a, a, a])(PLASM_STRUCT([ 
 		Plasm.cube(3,-1,+1),
 		roofpair, 
-		R(2, PI/2), R(3, PI/2), 
+		PLASM_R([1, 3])(PI/2), PLASM_R([1, 2])(PI/2), 
 		roofpair, 
-		R(3, PI/2), R(1, PI/2), 
+		PLASM_R([1, 2])(PI/2), PLASM_R([2, 3])(PI/2), 
 		roofpair]))
 
 DODECAHEDRON = build_DODECAHEDRON()
@@ -1853,9 +1896,9 @@ def build_ICOSAHEDRON():
     g = 0.5*(math.sqrt(5)-1)
     b = 2.0/(math.sqrt(5*math.sqrt(5)))
     rectx = PLASM_TRANSLATE([1, 2, 3])([-g, -1, 0])(CUBOID([2*g, 2]))
-    recty = R(2, PI/2)(R(3, PI/2)(rectx))
-    rectz = R(1, PI/2)(R(3, PI/2)(rectx))
-    return PLASM_S([1, 2, 3])([b, b, b])(JOIN([rectx, recty, rectz]))
+    recty = PLASM_R([1, 3])(PI/2)(PLASM_R([1, 2])(PI/2)(rectx))
+    rectz = PLASM_R([2, 3])(PI/2)(PLASM_R([1, 2])(PI/2)(rectx))
+    return PLASM_S([1, 2, 3])([b, b, b])(PLASM_JOIN([rectx, recty, rectz]))
 
 ICOSAHEDRON = build_ICOSAHEDRON()
 
@@ -1865,7 +1908,7 @@ ICOSAHEDRON = build_ICOSAHEDRON()
 # =============================================
 
 def build_TETRAHEDRON():
-	return JOIN([  PLASM_TRANSLATE([1, 2, 3])([0, 0, -1.0/3.0])(NGON(3)),  MK([0, 0, 1])  ])
+	return PLASM_JOIN([  PLASM_TRANSLATE([1, 2, 3])([0, 0, -1.0/3.0])(NGON(3)),  MK([0, 0, 1])  ])
 
 PLASM_TETRAHEDRON = build_TETRAHEDRON()
 
@@ -1921,7 +1964,7 @@ def TRIANGLEFAN (points):
 
 def MIRROR (D):
     def MIRROR0 (pol):
-        return  STRUCT([PLASM_S(D)(-1)(pol),pol])
+        return  PLASM_STRUCT([PLASM_S(D)(-1)(pol),pol])
     return MIRROR0
 
 
@@ -1934,9 +1977,9 @@ def POLYMARKER (type,MARKERSIZE=0.1):
 	marker0=Plasm.mkpol(2,[A,0, 0,A, B,0, 0,B],[[0, 1], [1, 2], [2, 3], [3, 0]])
 	marker1=Plasm.mkpol(2,[A, A, B, A, B, B, A, B], [[0, 2], [1, 3]])
 	marker2=Plasm.mkpol(2,[A, A, B, A, B, B, A, B], [[0, 1], [1, 2], [2, 3], [3, 0]])
-	marker3=STRUCT([marker0,marker1])
-	marker4=STRUCT([marker0,marker2])
-	marker5=STRUCT([marker1,marker2])
+	marker3=PLASM_STRUCT([marker0,marker1])
+	marker4=PLASM_STRUCT([marker0,marker2])
+	marker5=PLASM_STRUCT([marker1,marker2])
 	marker=[marker0, marker1, marker2, marker3, marker4,marker5][type % 6]
 	def POLYMARKER_POINTS(points):
 		dim=len(points[0])
@@ -2337,7 +2380,7 @@ if self_test:
 
 def FINITECONE (pol):
 	point=[0 for i in range(RN(pol))]
-	return JOIN([pol,MK(point)])
+	return PLASM_JOIN([pol,MK(point)])
 
 
 # ===================================================
@@ -2400,9 +2443,9 @@ def ROTN (args):
 	ISUP = COMP([AND, CONS([COMP([C(EQ)(0), S1]), COMP([C(EQ)(0), S2]), COMP([COMP([NOT, C(EQ)(0)]), S3])])])
 
 	if N[0]==0 and N[1]==0:
-		return R(3, alpha)
+		return PLASM_R([1, 2])(alpha)
 	else:
-		return COMP([MAT(TRANS(Q)),R(3, alpha),MAT(Q)])
+		return COMP([MAT(TRANS(Q)),PLASM_R([1, 2])(alpha),MAT(Q)])
 
 
 # ===================================================
@@ -2713,7 +2756,7 @@ def LOCATE (args):
 	ret=[]
 	for d in distances:
 		ret+=[PLASM_T(a)(d),pol]
-	return STRUCT(ret)
+	return PLASM_STRUCT(ret)
 
 
 # ===================================================
@@ -2736,11 +2779,11 @@ SOUTH    = CONS([CONS([MIN(1), MIN(2)]), CONS([MAX(1), MIN(2)])])
 WEST     = CONS([CONS([MIN(1), MAX(2)]), CONS([MIN(1), MIN(2)])])
 EAST     = CONS([CONS([MAX(1), MIN(2)]), CONS([MAX(1), MAX(2)])])
 
-MXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), MED([1, 2])]), ID])])
-MXBY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MED(1), MIN(2)])]), ID])])
-MXTY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MED(1), MAX(2)])]), ID])])
-LXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MIN(1), MED(2)])]), ID])])
-RXMY = COMP([STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MAX(1), MED(2)])]), ID])])
+MXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), MED([1, 2])]), ID])])
+MXBY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MED(1), MIN(2)])]), ID])])
+MXTY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MED(1), MAX(2)])]), ID])])
+LXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MIN(1), MED(2)])]), ID])])
+RXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MAX(1), MED(2)])]), ID])])
 
 
 # ===================================================
@@ -2764,7 +2807,7 @@ def RIF (size):
 def FRACTALSIMPLEX (D):
     def FRACTALSIMPLEX0 (N):
 
-		mkpols = COMP([COMP([COMP([COMP([STRUCT, AA(MKPOL)]), AA(AL)]), DISTR]), CONS([ID, K([[FROMTO([1,D+1])], [[1]]])])])
+		mkpols = COMP([COMP([COMP([COMP([PLASM_STRUCT, AA(MKPOL)]), AA(AL)]), DISTR]), CONS([ID, K([[FROMTO([1,D+1])], [[1]]])])])
 
 		def COMPONENT (args):
 			i, seq = args
@@ -2838,7 +2881,7 @@ def ARC(args):
 def PYRAMID (H):
 	def PYRAMID0(pol):
 		barycenter=MEANPOINT(UKPOL(pol)[0])
-		return JOIN([MK(barycenter+[H]),pol])
+		return PLASM_JOIN([MK(barycenter+[H]),pol])
 	return PYRAMID0
 
 
@@ -2912,12 +2955,12 @@ def SOLIDIFY(pol):
 		return DIM(pol)==RN(pol)
 
 	ret=SPLITCELLS(pol)
-	ret=[JOIN([pol,InftyProject(pol)]) for pol in ret]
-	return XOR(FILTER(IsFull)(ret))
+	ret=[PLASM_JOIN([pol,InftyProject(pol)]) for pol in ret]
+	return PLASM_XOR(FILTER(IsFull)(ret))
 
 if self_test:
 
-	VIEW(SOLIDIFY(STRUCT(AA(POLYLINE)([
+	VIEW(SOLIDIFY(PLASM_STRUCT(AA(POLYLINE)([
 		[[0,0],[4,2],[2.5,3],[4,5],[2,5],[0,3],[-3,3],[0,0]],
 		[[0,3],[0,1],[2,2],[2,4],[0,3]],
 		[[2,2],[1,3],[1,2],[2,2]]]))))
@@ -2933,8 +2976,8 @@ def EXTRUSION (angle):
 			cells=SPLITCELLS( SKELETON(dim)(pol) )
 			slice=[EMBED(1)(c) for c in cells]
 			tensor=COMP([PLASM_T(dim+1)(1.0/height),PLASM_R([dim-1,dim])(angle/height)])
-			layer=Plasm.Struct([JOIN([p,tensor(p)]) for p in slice])
-			return (COMP([COMP([STRUCT, CAT]), DIESIS(height)]))([layer, tensor])
+			layer=Plasm.Struct([PLASM_JOIN([p,tensor(p)]) for p in slice])
+			return (COMP([COMP([PLASM_STRUCT, CAT]), DIESIS(height)]))([layer, tensor])
 		return EXTRUSION0
 	return EXTRUSION1
 
@@ -2994,7 +3037,7 @@ if self_test:
 	mypol2 = PLASM_S(0.9,0.9,0)(mypol1)
 	mypol3 =  PLASM_DIFF([mypol1,mypol2]);
 
-	VIEW(STRUCT([
+	VIEW(PLASM_STRUCT([
 		  EX([0,10])(mypol3), PLASM_T(1)(12) ,
 		  LEX([0,10])(mypol3), PLASM_T(1)(25) ,
 		   PLASM_S(3)(3)(SEX([0,PI])(16)(mypol3))
@@ -3052,7 +3095,7 @@ if self_test:
 	vertices = [[0,0],[1,0],[1,0.5],[0.5,0.5],[0.5,1],[0,1]]
 	pol1D = MKPOL([vertices,[[1,2],[2,3],[3,4],[4,5],[5,6],[6,1]],[[1],[2],[3],[4],[5],[6]]])
 	pol2D = MKPOL( [vertices,[[1,2,3,4],[4,5,6,1]],[[1,2]]])
-	Min0 = STRUCT([PLASM_T([1,2])(v)(PLASM_S([1,2])([0.1,0.1])(B)) for v in vertices ])
+	Min0 = PLASM_STRUCT([PLASM_T([1,2])(v)(PLASM_S([1,2])([0.1,0.1])(B)) for v in vertices ])
 	Min1 = MINKOWSKI ([[0.1*-1.0/2.0,0.1*-1*math.sqrt(3.0/2.0)],[0.1*-1.0/2.0,0.1*math.sqrt(3.0/2.0)],[0.1*1,0.1*0]])(pol1D)
 	Min2 = MINKOWSKI ([[0.1*-1.0/2.0,0.1*-1*math.sqrt(3.0/2.0)],[0.1*-1.0/2.0,0.1*math.sqrt(3.0/2.0)],[0.1*1,0.1*0]])(pol2D)
 	A=Plasm.power(Min2,Q(0.05))
@@ -3190,8 +3233,8 @@ def ELLIPSE (args):
         C = 0.5*math.sqrt(2)
         mapping = RATIONALBEZIER([[A, 0, 1], [A*C, B*C, C], [0, B, 1]])
         quarter = MAP(mapping)((INTERVALS(1.0)(N)))
-        half = STRUCT([quarter, PLASM_S(2)(-1)(quarter)])
-        return STRUCT([half, PLASM_S(1)(-1)(half)])
+        half = PLASM_STRUCT([quarter, PLASM_S(2)(-1)(quarter)])
+        return PLASM_STRUCT([half, PLASM_S(1)(-1)(half)])
     return ELLIPSE0
 
 
@@ -3375,7 +3418,7 @@ def DISPLAYNUBSPLINE (args,marker_size=0.1):
 
 	spline_view_knots=POLYMARKER(2,marker_size)(UKPOL(NUBSPLINE(degree,len(knots))(knots)(points))[0])
 
-	return  STRUCT([
+	return  PLASM_STRUCT([
 		NUBSPLINE(degree)(knots)(points) if degree>0 else POLYMARKER(3,marker_size)(points)
 		,spline_view_knots
 		,POLYLINE(points)
@@ -3445,7 +3488,7 @@ def DISPLAYNURBSPLINE (args,marker_size=0.1):
 
 	spline_view_knots=POLYMARKER(2,marker_size)(UKPOL(NURBSPLINE(degree,len(knots))(knots)(points))[0])
 
-	return  STRUCT([
+	return  PLASM_STRUCT([
 		NURBSPLINE(degree)(knots)(points) if degree>0 else POLYMARKER(3,marker_size)(points)
 		,spline_view_knots
 		,POLYLINE(points)

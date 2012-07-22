@@ -564,14 +564,6 @@ def PLASM_DIFF(args):
 if self_test: 
 	assert( PLASM_DIFF(2)==-2 and  PLASM_DIFF([1,2,3])==-4 and  PLASM_DIFF([[1,2,3],[1,2,3]])==[0,0,0])
 
-# NEW DEFINITION:
-# With two arguments, use is possible without brackets:
-def DIFF(b, a = None):
-    if a != None:  # if there are two arguments, form a list
-        return PLASM_DIFF([b, a])
-    else:  # if single argument, then it must be a list
-        return PLASM_DIFF(b)
-
 # ===================================================
 # n-ary PRODuct 
 # ===================================================
@@ -996,9 +988,12 @@ if self_test:
 MK = COMP([MKPOL, CONS([LIST, K([[1]]), K([[1]])])])
 
 # convex hull of points
-def CONVEXHULL (points):
+def PLASM_CONVEXHULL (points):
     return MKPOL([points, [range(1,len(points)+1)], [[1]]])
 
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS)
+def CONVEXHULL(*args):
+    return PLASM_CONVEXHULL(list(args))
 
 # ===================================================
 # UKPOL
@@ -1099,7 +1094,7 @@ if self_test:
 # NEW DEFINITION:
 def SCALE(obj, a, b, c):
     return PLASM_SCALE([1, 2, 3])([a, b, c])(obj)
-
+S = SCALE
 # ===================================================
 # ROTATE
 # ===================================================
@@ -1208,12 +1203,9 @@ if self_test:
 	assert(Plasm.limits(PLASM_STRUCT([Plasm.cube(2)  ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]) ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]) ,  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,4,4))))
 	assert(Plasm.limits(PLASM_STRUCT([ PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]), PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]), Plasm.cube(2)  ,  PLASM_TRANSLATE([1, 2, 3])([1, 1, 0])  ,PLASM_TRANSLATE([1, 2, 3])([1, 1, 0]),  Plasm.cube(2),Plasm.cube(2,1,2)  ])).fuzzyEqual(Boxf(Vecf(1,2,2),Vecf(1,6,6))))
 
-# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
-def STRUCT(a, b = None):
-    if b != None:
-        return PLASM_STRUCT([a, b])
-    else: # single argument must be list
-        return PLASM_STRUCT(a)
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS)
+def STRUCT(*args):
+    return PLASM_STRUCT(list(args))
 
 # ===================================================
 # BOOLEAN OP
@@ -1223,47 +1215,42 @@ def STRUCT(a, b = None):
 def PLASM_UNION(objs_list):
         return Plasm.boolop(BOOL_CODE_OR, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
 
-# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
-def UNION(a, b = None):
-    if b != None:
-        return PLASM_UNION([a, b])
-    else: # single argument must be list
-        return PLASM_UNION(a)
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS)
+def UNION(*args):
+    return PLASM_UNION(list(args))
+U = UNION
 
 
 #also ^ can be used to indicates INTERSECTION
 def PLASM_INTERSECTION (objs_list):
         return Plasm.boolop(BOOL_CODE_AND, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
+PLASM_I = PLASM_INTERSECTION
 
-# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
-def INTERSECTION(a, b = None):
-    if b != None:
-        return PLASM_INTERSECTION([a, b])
-    else: # single argument must be list
-        return PLASM_INTERSECTION(a)
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS)
+def INTERSECTION(*args):
+    return PLASM_INTERSECTION(list(args))
+I = INTERSECTION
 
 
 #also -, or DIFF, can be used to indicates DIFFERENCE
 def PLASM_DIFFERENCE (objs_list):
         return Plasm.boolop(BOOL_CODE_DIFF, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
-        
-# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
-def DIFFERENCE(a, b = None):
-    if b != None:
-        return PLASM_DIFFERENCE([a, b])
-    else: # single argument must be list
-        return PLASM_DIFFERENCE(a)
+PLASM_DIFF = PLASM_DIFFERENCE        
+
+
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS)
+def DIFFERENCE(*args):
+    return PLASM_DIFFERENCE(list(args))
+DIFF = DIFFERENCE
 
 # xor
 def PLASM_XOR(objs_list):
         return Plasm.boolop(BOOL_CODE_XOR, objs_list,plasm_config.tolerance(),plasm_config.maxnumtry(),plasm_config.useOctreePlanes())
 
-# NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
-def XOR(a, b = None):
-    if b != None:
-        return PLASM_XOR([a, b])
-    else: # single argument must be list
-        return PLASM_XOR(a)
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS)
+def XOR(*args):
+    return PLASM_XOR(list(args))
+
 
 if self_test: 
 	assert(Plasm.limits(PLASM_UNION([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1.5,1.5))))
@@ -1914,7 +1901,7 @@ PLASM_TETRAHEDRON = build_TETRAHEDRON()
 
 # NEW DEFINITION:
 def TETRAHEDRON(a, b, c, d):
-    return CONVEXHULL([a, b, c, d])
+    return PLASM_CONVEXHULL([a, b, c, d])
 
 # =============================================
 # TRIANGLE
@@ -1922,7 +1909,7 @@ def TETRAHEDRON(a, b, c, d):
 
 # NEW DEFINITION:
 def TRIANGLE(a, b, c):
-    return CONVEXHULL([a, b, c])
+    return PLASM_CONVEXHULL([a, b, c])
 
 # ===================================================
 # POLYPOINT 
@@ -2260,9 +2247,13 @@ def HERMITE(args):
 def Q(H):
 	return Plasm.mkpol(1,[0,H],[[0,1]])
 
-def EXTRUDE (args):
+def PLASM_EXTRUDE (args):
 	__N, Pol, H = args
 	return Plasm.power(Pol,Q(H))
+
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS)
+def EXTRUDE(*args):
+    return PLASM_EXTRUDE(list(args))
 
 
 def MULTEXTRUDE (P):

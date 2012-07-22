@@ -569,7 +569,7 @@ if self_test:
 # ===================================================
 
 def PROD(args):        
-    if isinstance(args,list) and ISPOL(args[0]): return  POWER(args)
+    if isinstance(args,list) and ISPOL(args[0]): return  PLASM_POWER(args)
     if isinstance(args,list) and ISSEQOF(ISNUM)(args): return reduce(lambda x,y: x * y, args)
     if isinstance(args,list) and len(args) == 2 and ISSEQOF(ISNUM)(args[0]) and ISSEQOF(ISNUM)(args[1]): return  Vecf(args[0])*Vecf(args[1])
     raise Exception("PROD function has been applied to %s!" % repr(args))
@@ -1280,7 +1280,7 @@ def JOIN(a, b = None):
 # ===================================================
 # also ** can be used to indicates POWER
 # ===================================================
-def POWER (objs_list):
+def PLASM_POWER (objs_list):
      
      if not isinstance(objs_list,list) or len(objs_list)!=2:
         raise Exception("POWER can only be applied to a list of 2 arguments") 
@@ -1291,8 +1291,13 @@ def POWER (objs_list):
      return Plasm.power(objs_list[0], objs_list[1])
         
 if self_test: 
-	assert(POWER([2,2])==4)
-	assert(Plasm.limits(POWER([Plasm.cube(2),Plasm.cube(1)])).fuzzyEqual(Boxf(Vecf(1,0,0,0),Vecf(1,1,1,1))))
+	assert(PLASM_POWER([2,2])==4)
+	assert(Plasm.limits(PLASM_POWER([Plasm.cube(2),Plasm.cube(1)])).fuzzyEqual(Boxf(Vecf(1,0,0,0),Vecf(1,1,1,1))))
+
+# NEW DEFINITION (ALLOWS OMITTING BRACKETS)
+def POWER(*args):
+    return PLASM_POWER(list(args))
+
 
 # ===================================================
 # Skeleton
@@ -1342,17 +1347,17 @@ Q = COMP([QUOTE, IF([ISSEQ, ID, CONS([ID])])])
 # INTERVALS 
 # ===================================================
 
-def INTERVALS (A):
-    def INTERVALS0 (N):
+def PLASM_INTERVALS (A):
+    def PLASM_INTERVALS0 (N):
         return QUOTE([float(A)/float(N) for i in range(N)])
-    return INTERVALS0
+    return PLASM_INTERVALS0
 
 if self_test:
-    assert Plasm.limits(INTERVALS(10)(8))==Boxf(Vecf([1,0]),Vecf([1,10]))
+    assert Plasm.limits(PLASM_INTERVALS(10)(8))==Boxf(Vecf([1,0]),Vecf([1,10]))
 
-
-
-
+# NEW DEFINITION:
+def INTERVALS(a, n):
+    return PLASM_INTERVALS(a)(n)
 
 # ===================================================
 # SIZE
@@ -1638,7 +1643,7 @@ def CIRCLE_POINTS(R,N):
    return [ [R*math.cos(i*2*PI/N),R*math.sin(i*2*PI/N)] for i in range(0,N) ]
 
 def CIRCUMFERENCE (R):
-    return lambda N: MAP(lambda p: [R*math.cos(p[0]),R*math.sin(p[0]) ])(INTERVALS(2*PI)(N))
+    return lambda N: MAP(lambda p: [R*math.cos(p[0]),R*math.sin(p[0]) ])(PLASM_INTERVALS(2*PI)(N))
 
 def NGON (N):
     return CIRCUMFERENCE(1)(N)
@@ -1656,7 +1661,7 @@ def PLASM_RING (radius):
     R1 , R2 = radius
     def PLASM_RING0 (subds):
         N , M = subds
-        domain= Plasm.translate(POWER([INTERVALS(2*PI)(N),INTERVALS(R2-R1)(M)]),Vecf([0.0,0.0,R1]))
+        domain= Plasm.translate(PLASM_POWER([PLASM_INTERVALS(2*PI)(N),PLASM_INTERVALS(R2-R1)(M)]),Vecf([0.0,0.0,R1]))
         fun=lambda p: [p[1]*math.cos(p[0]),p[1]*math.sin(p[0])]
         return MAP(fun)(domain)
     return PLASM_RING0
@@ -1687,7 +1692,7 @@ def TUBE(r1, r2, h, division = 64):
 def PLASM_CIRCLE (R):
     def PLASM_CIRCLE0 (subs):
         N , M = subs
-        domain= POWER([INTERVALS(2*PI)(N), INTERVALS(R)(M)])
+        domain= PLASM_POWER([PLASM_INTERVALS(2*PI)(N), PLASM_INTERVALS(R)(M)])
         fun=lambda p: [p[1]*math.cos(p[0]),p[1]*math.sin(p[0])]
         return MAP(fun)(domain)
     return PLASM_CIRCLE0
@@ -1733,7 +1738,7 @@ def CYLINDER(r, h, division = 64):
 def PLASM_SPHERE (radius):
     def PLASM_SPHERE0 (subds):
         N , M = subds
-        domain = Plasm.translate( Plasm.power(INTERVALS(PI)(N) , INTERVALS(2*PI)(M)), Vecf(0, -PI/2,0 ) )
+        domain = Plasm.translate( Plasm.power(PLASM_INTERVALS(PI)(N) , PLASM_INTERVALS(2*PI)(M)), Vecf(0, -PI/2,0 ) )
         fx  = lambda p: radius * math.cos(p[0])  * math.sin  (p[1])
         fy  = lambda p: radius * math.cos(p[0]) * math.cos (p[1])
         fz  = lambda p: radius * math.sin(p[0]) 
@@ -1767,7 +1772,7 @@ def PLASM_TORUS (radius):
         N , M = subds
         a=0.5*(r2-r1)
         c=0.5*(r1+r2)
-        domain=Plasm.power(  INTERVALS(2*PI)(N),  INTERVALS(2*PI)(M)  )
+        domain=Plasm.power(  PLASM_INTERVALS(2*PI)(N),  PLASM_INTERVALS(2*PI)(M)  )
         fx =   lambda p: (c+a*math.cos(p[1])) * math.cos(p[0])
         fy =   lambda p: (c+a*math.cos(p[1])) * math.sin (p[0])
         fz =   lambda p: a*math.sin(p[1])
@@ -1795,7 +1800,7 @@ def PLASM_SOLIDTORUS (radius):
         N, M, P = subdomains
         a=0.5*(r2-r1)
         c=0.5*(r1+r2)
-        domain = INSR(PROD)([INTERVALS(2*PI)(N), INTERVALS(2*PI)(M), INTERVALS(1)(P)])
+        domain = INSR(PROD)([PLASM_INTERVALS(2*PI)(N), PLASM_INTERVALS(2*PI)(M), PLASM_INTERVALS(1)(P)])
         fx =   lambda p: (c + p[2]*a*math.cos(p[1])) * math.cos(p[0])
         fy =   lambda p: (c + p[2]*a*math.cos(p[1])) * math.sin(p[0])
         fz =   lambda p: p[2]*a*math.sin(p[1])
@@ -2034,14 +2039,14 @@ def BEZIER(U):
 	return BEZIER0
 
 if self_test:
-	VIEW(MAP(BEZIER(S1)([[-0,0],[1,0],[1,1],[2,1],[3,1]]))(INTERVALS(1)(32)))
+	VIEW(MAP(BEZIER(S1)([[-0,0],[1,0],[1,1],[2,1],[3,1]]))(PLASM_INTERVALS(1)(32)))
 	C0 = BEZIER(S1)([[0,0,0],[10,0,0]])
 	C1 = BEZIER(S1)([[0,2,0],[8,3,0],[9,2,0]])
 	C2 = BEZIER(S1)([[0,4,1],[7,5,-1],[8,5,1],[12,4,0]])
 	C3 = BEZIER(S1)([[0,6,0],[9,6,3],[10,6,-1]])
 
 	plasm_config.push(1e-4)
-	out = MAP(BEZIER(S2)([C0,C1,C2,C3]))(  Plasm.power(INTERVALS(1)(10),INTERVALS(1)(10))  )
+	out = MAP(BEZIER(S2)([C0,C1,C2,C3]))(  Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10))  )
 	plasm_config.pop()
 	VIEW(out)
 
@@ -2077,7 +2082,7 @@ if self_test:
 	Sv0=BEZIER(S2)([[0,0,0],[0,0,3],[0,10,3],[0,10,0]])
 	Sv1=BEZIER(S2)([[10,0,0],[10,5,3],[10,10,0]])
 	plasm_config.push(1e-4)
-	out=MAP(COONSPATCH([Su0,Su1,Sv0,Sv1]))(Plasm.power(INTERVALS(1)(10),INTERVALS(1)(10)))
+	out=MAP(COONSPATCH([Su0,Su1,Sv0,Sv1]))(Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10)))
 	plasm_config.pop()
 	VIEW(out)
 
@@ -2101,7 +2106,7 @@ def RULEDSURFACE (args):
 if self_test:
 	alpha= lambda point: [point[0],point[0],       0 ]
 	beta = lambda point: [      -1,      +1,point[0] ]
-	domain= PLASM_TRANSLATE([1, 2, 3])([-1, -1, 0])(Plasm.power(INTERVALS(2)(10),INTERVALS(2)(10)))
+	domain= PLASM_TRANSLATE([1, 2, 3])([-1, -1, 0])(Plasm.power(PLASM_INTERVALS(2)(10),PLASM_INTERVALS(2)(10)))
 	plasm_config.push(1e-4)
 	VIEW(MAP(RULEDSURFACE([alpha,beta]))(domain))
 	plasm_config.pop()
@@ -2125,7 +2130,7 @@ if self_test:
 	alpha=BEZIER(S1)([[0.1,0,0],[2,0,0],[0,0,4],[1,0,5]])
 	beta =BEZIER(S2)([[0,0,0],[3,-0.5,0],[3,3.5,0],[0,3,0]])
 	plasm_config.push(1e-4)
-	domain=Plasm.power(INTERVALS(1)(20),INTERVALS(1)(20))
+	domain=Plasm.power(PLASM_INTERVALS(1)(20),PLASM_INTERVALS(1)(20))
 	out=Plasm.Struct([MAP(alpha)(domain),MAP(beta )(domain),MAP(PROFILEPRODSURFACE([alpha,beta]))(domain)])
 	plasm_config.pop()
 	VIEW(out)
@@ -2149,7 +2154,7 @@ def ROTATIONALSURFACE (args):
 if self_test:
 	profile=BEZIER(S1)([[0,0,0],[2,0,1],[3,0,4]]) # defined in xz!
 	plasm_config.push(1e-4)
-	domain=Plasm.power(INTERVALS(1)(10),INTERVALS(2*PI)(30)) # the first interval should be in 0,1 for bezier
+	domain=Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(2*PI)(30)) # the first interval should be in 0,1 for bezier
 	out=MAP(ROTATIONALSURFACE(profile))(domain)
 	plasm_config.pop()
 	VIEW(out)
@@ -2168,8 +2173,8 @@ def CYLINDRICALSURFACE (args):
 
 if self_test:
 	alpha=BEZIER(S1)([[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0]])
-	Udomain=INTERVALS(1)(20)
-	Vdomain=INTERVALS(1)(6)
+	Udomain=PLASM_INTERVALS(1)(20)
+	Vdomain=PLASM_INTERVALS(1)(6)
 	domain=Plasm.power(Udomain,Vdomain)
 	fn=CYLINDRICALSURFACE([alpha,[0,0,1]])
 	VIEW(MAP(fn)(domain))
@@ -2188,7 +2193,7 @@ def CONICALSURFACE (args):
 
 
 if self_test:
-	domain=Plasm.power(INTERVALS(1)(20),INTERVALS(1)(6))
+	domain=Plasm.power(PLASM_INTERVALS(1)(20),PLASM_INTERVALS(1)(6))
 	beta=BEZIER(S1)([ [1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0] ])
 	out=MAP(CONICALSURFACE([[0,0,1],beta]))(domain)
 	VIEW(out)
@@ -2214,7 +2219,7 @@ def CUBICHERMITE (U):
 
 if self_test:
 
-	domain=INTERVALS(1)(20)
+	domain=PLASM_INTERVALS(1)(20)
 	out=Plasm.Struct([
 		MAP(CUBICHERMITE(S1)([[1,0],[1,1],[ -1, 1],[ 1,0]]))(domain),
 		MAP(CUBICHERMITE(S1)([[1,0],[1,1],[ -2, 2],[ 2,0]]))(domain),
@@ -2227,7 +2232,7 @@ if self_test:
 	c2=CUBICHERMITE(S1)([[0.5,0,0],[0,0.5,0],[0,1,0],[-1,0,0]])
 	sur3=CUBICHERMITE(S2)([c1,c2,[1,1,1],[-1,-1,-1]])
 	plasm_config.push(1e-4)
-	domain=Plasm.power(INTERVALS(1)(14),INTERVALS(1)(14))
+	domain=Plasm.power(PLASM_INTERVALS(1)(14),PLASM_INTERVALS(1)(14))
 	out=MAP(sur3)(domain)
 	plasm_config.pop()
 	VIEW(out)
@@ -2544,7 +2549,7 @@ def SPLINE (curve):
 
 
 if self_test:
-	domain=INTERVALS(1)(20)
+	domain=PLASM_INTERVALS(1)(20)
 	points = [[-3,6],[-4,2],[-3,-1],[-1,1],[1.5,1.5],[3,4],[5,5],[7,2],[6,-2],[2,-3]]
 	VIEW(SPLINE(CUBICCARDINAL(domain))(points))
 	VIEW(SPLINE(CUBICUBSPLINE(domain))(points))
@@ -2619,7 +2624,7 @@ def BILINEARSURFACE(controlpoints):
 
 if self_test:
 	controlpoints=[[[0,0,0],[2,-4,2]],[[0,3,1],[4,0,0]]]
-	domain=Plasm.power(INTERVALS(1)(10),INTERVALS(1)(10))
+	domain=Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10))
 	mapping=BILINEARSURFACE(controlpoints)
 	VIEW(MAP(mapping)(domain))
 
@@ -2636,7 +2641,7 @@ def BIQUADRATICSURFACE (controlpoints):
 
 if self_test:
 	controlpoints=[[[0,0,0],[2,0,1],[3,1,1]],[[1,3,-1],[3,2,0],[4,2,0]],[[0,9,0],[2,5,1],[3,3,2]]]
-	domain=Plasm.power(INTERVALS(1)(10),INTERVALS(1)(10))
+	domain=Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10))
 	mapping=BIQUADRATICSURFACE(controlpoints)
 	plasm_config.push(1e-4)
 	VIEW(MAP(mapping)(domain))
@@ -2657,7 +2662,7 @@ def HERMITESURFACE(controlpoints):
 
 if self_test:
 	controlpoints=[[[0,0,0 ],[2,0,1],[3,1,1],[4,1,1]],[[1,3,-1],[3,2,0],[4,2,0],[4,2,0]],[[0,4,0 ],[2,4,1],[3,3,2],[5,3,2]],[[0,6,0 ],[2,5,1],[3,4,1],[4,4,0]]]
-	domain=Plasm.power(INTERVALS(1)(10),INTERVALS(1)(10))
+	domain=Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10))
 	mapping=HERMITESURFACE(controlpoints)
 	plasm_config.push(1e-4)
 	VIEW(MAP(mapping)(domain))
@@ -2678,7 +2683,7 @@ if self_test:
 		[[ 3,0,2],[2 ,2.5,5],[3,6,5],[4,8,2]],
 		[[ 6,0,2],[8 ,3 , 5],[7,6,4.5],[6,10,2.5]],
 		[[10,0,0],[11,3  ,4],[11,6,3],[10,9,0]]]
-	domain=Plasm.power(INTERVALS(1)(10),INTERVALS(1)(10))
+	domain=Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10))
 	mapping=BEZIERSURFACE(controlpoints)
 	plasm_config.push(1e-4)
 	VIEW(MAP(mapping)(domain))
@@ -2728,7 +2733,7 @@ def BEZIERMANIFOLD (degrees):
 	return TENSORPRODSOLID(basis)
 
 if self_test:
-	grid1D = INTERVALS(1)(5)
+	grid1D = PLASM_INTERVALS(1)(5)
 	domain3D = Plasm.power(Plasm.power(grid1D,grid1D),grid1D)
 	degrees = [2,2,2]
 	Xtensor =  [[[0,1,2],[-1,0,1],[0,1,2]],[[0,1,2],[-1,0,1],[0,1,2]],[[0,1,2],[-1,0,1],[0,1,2]]]
@@ -3154,9 +3159,9 @@ if self_test:
 	S0v = COMP([BEZIERCURVE([[0,0,0],[0,0,3],[0,10,3],[0,10,0]]) , CONS([S2]) ]) 
 	S1v = COMP([BEZIERCURVE([[10,0,0],[10,5,3],[10,10,0]]) ,CONS([S2])   ])
 	surface=COONSPATCH([Su0,Su1,S0v,S1v])
-	VIEW(MAP(  surface ) (Plasm.power(INTERVALS(1)(10),INTERVALS(1)(10))))
+	VIEW(MAP(  surface ) (Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10))))
 	solidMapping = THINSOLID(surface)
-	Domain3D = Plasm.power(Plasm.power(INTERVALS(1)(5),INTERVALS(1)(5)),INTERVALS(0.5)(5))
+	Domain3D = Plasm.power(Plasm.power(PLASM_INTERVALS(1)(5),PLASM_INTERVALS(1)(5)),PLASM_INTERVALS(0.5)(5))
 	VIEW(MAP(solidMapping)(Domain3D))
 
 	
@@ -3223,7 +3228,7 @@ def ELLIPSE (args):
     def ELLIPSE0 (N):
         C = 0.5*math.sqrt(2)
         mapping = RATIONALBEZIER([[A, 0, 1], [A*C, B*C, C], [0, B, 1]])
-        quarter = MAP(mapping)((INTERVALS(1.0)(N)))
+        quarter = MAP(mapping)((PLASM_INTERVALS(1.0)(N)))
         half = PLASM_STRUCT([quarter, PLASM_S(2)(-1)(quarter)])
         return PLASM_STRUCT([half, PLASM_S(1)(-1)(half)])
     return ELLIPSE0
@@ -3308,7 +3313,7 @@ def BEZIERSTRIPE (args):
 
 		return ret
 
-	domain=PLASM_S(2)(width)(PLASM_T(1)(0.00001)(Plasm.power(INTERVALS(1)(n),INTERVALS(1)(1))))
+	domain=PLASM_S(2)(width)(PLASM_T(1)(0.00001)(Plasm.power(PLASM_INTERVALS(1)(n),PLASM_INTERVALS(1)(1))))
 	return MAP(map_fn)(domain)
 
 if self_test:

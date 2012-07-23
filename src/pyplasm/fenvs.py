@@ -994,6 +994,8 @@ def PLASM_CONVEXHULL (points):
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def CONVEXHULL(*args):
     return PLASM_CONVEXHULL(list(args))
+CHULL = CONVEXHULL
+CH = CONVEXHULL
 
 # ===================================================
 # UKPOL
@@ -1757,11 +1759,11 @@ if self_test:
 	plasm_config.pop()
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
-def SPHERE_SURFACE(radius, divisions = [32, 32]):
+def SPHERE_SURFACE(radius, divisions = [24, 48]):
     # This is a surface:
     return PLASM_SPHERE(radius)(divisions)
 
-def SPHERE(radius, divisions = [32, 32]):
+def SPHERE(radius, divisions = [24, 48]):
     # Making it s solid:
     return PLASM_JOIN(PLASM_SPHERE(radius)(divisions))
 

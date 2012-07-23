@@ -1,12 +1,14 @@
+# Import PyPLaSM:
 from pyplasm import *
 
-color = [0.9, 0.9, 0.9]
-cube = CUBE(1)
-cube2 = R(3, PI)(cube)
-VIEW(STRUCT([cube, cube2]), color)
+# Rotate a cube about its edge:
+c = CUBE(1)
+c2 = R(c, 3, PI)
+VIEW(STRUCT(c, c2))
 
-cube = CUBE(1)
-cube2 = R(3, PI/4)(cube)
-cube2 = R(1, PI/4)(cube2)
-cube2 = T(1, 1, 1)(cube2)
-VIEW(STRUCT([cube, cube2]), color)
+# Rotation and translation:
+c = CUBE(1)
+c2 = R(c, 3, PI/4)
+c2 = R(c2, 1, PI/4)
+c2 = T(c2, 1, 1, 1)
+VIEW(STRUCT(c, c2))

@@ -1,3 +1,4 @@
+# Import PyPLaSM:
 from pyplasm import *
 
 # Cube:
@@ -69,12 +70,15 @@ R = 5.0
 tor = TORUS(r, R)
 VIEW(tor)
 
-# Convex hull:
-# Polygon with N edges inscribed into circle 
-# of radius R.
+# Convex hull: We will create a polygon with 
+# N edges inscribed into circle of radius R.
 N = 15
 R = 5
-p = CONVEXHULL(CIRCLE_POINTS(R, N))
+L = CIRCLE_POINTS(R, N)
+# The CONVEXHULL command expects bare points. 
+# If you provide a list, insert asterisk in
+# front of its name. 
+p = CONVEXHULL(*L)
 VIEW(p)
 
 

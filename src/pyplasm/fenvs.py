@@ -1361,6 +1361,13 @@ if self_test:
 def INTERVALS(a, n):
     return PLASM_INTERVALS(a)(n)
 
+# NEW COMMAND FOR REFERENCE DOMAIN:
+def REF_DOMAIN(a, b, n, m):
+    return POWER(INTERVALS(a, n), INTERVALS(b, m))
+
+def UNIT_SQUARE(n, m):
+    return POWER(INTERVALS(1.0, n), INTERVALS(1.0, m))
+
 # ===================================================
 # SIZE
 # ===================================================
@@ -2173,7 +2180,11 @@ if self_test:
 	plasm_config.pop()
 	VIEW(out)
 
-
+# NEW COMMAND:
+def ROTATIONAL_SURFACE(args):
+    return ROTATIONALSURFACE(args)
+RSURFACE = ROTATIONAL_SURFACE
+RS = RSURFACE
 
     
 # ======================================================

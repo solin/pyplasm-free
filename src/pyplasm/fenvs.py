@@ -2079,7 +2079,7 @@ def BEZIER_SURFACE(*args):
 # coons patch
 # ======================================================
 
-def COONSPATCH (args):
+def PLASM_COONSPATCH (args):
 	su0_fn , su1_fn , s0v_fn , s1v_fn = args
 
 	def map_fn(point):
@@ -2103,16 +2103,19 @@ if self_test:
 	Sv0=PLASM_BEZIER(S2)([[0,0,0],[0,0,3],[0,10,3],[0,10,0]])
 	Sv1=PLASM_BEZIER(S2)([[10,0,0],[10,5,3],[10,10,0]])
 	plasm_config.push(1e-4)
-	out=PLASM_MAP(COONSPATCH([Su0,Su1,Sv0,Sv1]))(Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10)))
+	out=PLASM_MAP(PLASM_COONSPATCH([Su0,Su1,Sv0,Sv1]))(Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10)))
 	plasm_config.pop()
 	VIEW(out)
 
+# NEW DEFINITION:
+def COONSPATCH(a, b, c, d):
+    return PLASM_COONSPATCH([a, b, c, d])
 
 # ======================================================
 # RULED SURFACE
 # ======================================================
 
-def RULEDSURFACE (args):
+def PLASM_RULEDSURFACE (args):
 	alpha_fn , beta_fn = args
 
 	def map_fn(point):
@@ -2129,9 +2132,14 @@ if self_test:
 	beta = lambda point: [      -1,      +1,point[0] ]
 	domain= PLASM_TRANSLATE([1, 2, 3])([-1, -1, 0])(Plasm.power(PLASM_INTERVALS(2)(10),PLASM_INTERVALS(2)(10)))
 	plasm_config.push(1e-4)
-	VIEW(PLASM_MAP(RULEDSURFACE([alpha,beta]))(domain))
+	VIEW(PLASM_MAP(PLASM_RULEDSURFACE([alpha,beta]))(domain))
 	plasm_config.pop()
 
+# NEW DEFINITION
+def RULED_SURFACE(a, b):
+    return PLASM_RULEDSURFACE([a, b])
+RUSURFACE = RULED_SURFACE
+RUS = RULED_SURFACE
     
 # ======================================================
 # PROFILE SURFACE
@@ -2183,8 +2191,8 @@ if self_test:
 # NEW COMMAND:
 def ROTATIONAL_SURFACE(args):
     return ROTATIONALSURFACE(args)
-RSURFACE = ROTATIONAL_SURFACE
-RS = RSURFACE
+ROSURFACE = ROTATIONAL_SURFACE
+ROS = ROTATIONAL_SURFACE
 
     
 # ======================================================
@@ -2194,7 +2202,7 @@ RS = RSURFACE
 def CYLINDRICALSURFACE (args):
 	alpha_fun   = args[0]
 	beta_fun    = CONS(AA(K)(args[1]))
-	return RULEDSURFACE([alpha_fun,beta_fun])
+	return PLASM_RULEDSURFACE([alpha_fun,beta_fun])
 
 if self_test:
 	alpha=PLASM_BEZIER(S1)([[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0]])
@@ -2214,7 +2222,7 @@ def CONICALSURFACE (args):
 	apex=args[0]
 	alpha_fn   = lambda point: apex
 	beta_fn    = lambda point: [ args[1](point)[i]-apex[i] for i in range(len(apex))]
-	return RULEDSURFACE([alpha_fn, beta_fn])
+	return PLASM_RULEDSURFACE([alpha_fn, beta_fn])
 
 
 if self_test:
@@ -3183,7 +3191,7 @@ if self_test:
 	Su1 = COMP([PLASM_BEZIERCURVE([[0,10,0],[2.5,10,3],[5,10,-3],[7.5,10,3],[10,10,0]]),CONS([S1]) ])
 	S0v = COMP([PLASM_BEZIERCURVE([[0,0,0],[0,0,3],[0,10,3],[0,10,0]]) , CONS([S2]) ]) 
 	S1v = COMP([PLASM_BEZIERCURVE([[10,0,0],[10,5,3],[10,10,0]]) ,CONS([S2])   ])
-	surface=COONSPATCH([Su0,Su1,S0v,S1v])
+	surface=PLASM_COONSPATCH([Su0,Su1,S0v,S1v])
 	VIEW(PLASM_MAP(  surface ) (Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10))))
 	solidMapping = THINSOLID(surface)
 	Domain3D = Plasm.power(Plasm.power(PLASM_INTERVALS(1)(5),PLASM_INTERVALS(1)(5)),PLASM_INTERVALS(0.5)(5))

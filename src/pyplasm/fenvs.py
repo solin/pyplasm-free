@@ -2070,9 +2070,10 @@ def PLASM_BEZIERCURVE (controlpoints):
 # NEW DEFINITIONS:
 def BEZIER_CURVE(*args):
     return PLASM_BEZIER(S1)(list(args))
+BECURVE = BEZIER_CURVE
 def BEZIER_SURFACE(*args):
     return PLASM_BEZIER(S2)(list(args))
-
+BESURFACE = BEZIER_SURFACE
 
 
 # ======================================================
@@ -2139,7 +2140,6 @@ if self_test:
 def RULED_SURFACE(a, b):
     return PLASM_RULEDSURFACE([a, b])
 RUSURFACE = RULED_SURFACE
-RUS = RULED_SURFACE
     
 # ======================================================
 # PROFILE SURFACE
@@ -2164,6 +2164,10 @@ if self_test:
 	plasm_config.pop()
 	VIEW(out)
 
+# NEW DEFINITION
+def PROFILE_PROD_SURFACE(a, b):
+    return PROFILEPRODSURFACE([a, b])
+PPSURFACE = PROFILE_PROD_SURFACE
 
     
 # ======================================================
@@ -2212,6 +2216,11 @@ if self_test:
 	fn=CYLINDRICALSURFACE([alpha,[0,0,1]])
 	VIEW(PLASM_MAP(fn)(domain))
 
+# NEW COMMAND:
+def CYLINDRICAL_SURFACE(args):
+    return CYLINDRICALSURFACE(args)
+CYSURFACE = CYLINDRICAL_SURFACE
+
 
 # ======================================================
 # CONICALSURFACE
@@ -2231,14 +2240,18 @@ if self_test:
 	out=PLASM_MAP(CONICALSURFACE([[0,0,1],beta]))(domain)
 	VIEW(out)
 
+# NEW COMMAND:
+def CONICAL_SURFACE(a, b):
+    return CONICALSURFACE([a, b])
+COSURFACE = CONICAL_SURFACE
 
 
 # ======================================================
 # CUBICHERMITE
 # ======================================================
 
-def CUBICHERMITE (U):
-	def CUBICHERMITE0 (args):
+def PLASM_CUBICHERMITE (U):
+	def PLASM_CUBICHERMITE0 (args):
 		p1_fn , p2_fn , s1_fn , s2_fn = args
 		def map_fn(point):
 			u=U(point);u2=u*u;u3=u2*u
@@ -2248,32 +2261,39 @@ def CUBICHERMITE (U):
 				ret[i]+=(2*u3-3*u2+1)*p1[i] + (-2*u3+3*u2)*p2[i]+(u3-2*u2+u)*s1[i]+(u3-u2)*s2[i]
 			return ret
 		return map_fn
-	return CUBICHERMITE0
+	return PLASM_CUBICHERMITE0
 
 if self_test:
 
 	domain=PLASM_INTERVALS(1)(20)
 	out=Plasm.Struct([
-		PLASM_MAP(CUBICHERMITE(S1)([[1,0],[1,1],[ -1, 1],[ 1,0]]))(domain),
-		PLASM_MAP(CUBICHERMITE(S1)([[1,0],[1,1],[ -2, 2],[ 2,0]]))(domain),
-		PLASM_MAP(CUBICHERMITE(S1)([[1,0],[1,1],[ -4, 4],[ 4,0]]))(domain),
-		PLASM_MAP(CUBICHERMITE(S1)([[1,0],[1,1],[-10,10],[10,0]]))(domain)
+		PLASM_MAP(PLASM_CUBICHERMITE(S1)([[1,0],[1,1],[ -1, 1],[ 1,0]]))(domain),
+		PLASM_MAP(PLASM_CUBICHERMITE(S1)([[1,0],[1,1],[ -2, 2],[ 2,0]]))(domain),
+		PLASM_MAP(PLASM_CUBICHERMITE(S1)([[1,0],[1,1],[ -4, 4],[ 4,0]]))(domain),
+		PLASM_MAP(PLASM_CUBICHERMITE(S1)([[1,0],[1,1],[-10,10],[10,0]]))(domain)
 	])
 	VIEW(out)
 
-	c1=CUBICHERMITE(S1)([[1  ,0,0],[0  ,1,0],[0,3,0],[-3,0,0]])
-	c2=CUBICHERMITE(S1)([[0.5,0,0],[0,0.5,0],[0,1,0],[-1,0,0]])
-	sur3=CUBICHERMITE(S2)([c1,c2,[1,1,1],[-1,-1,-1]])
+	c1=PLASM_CUBICHERMITE(S1)([[1  ,0,0],[0  ,1,0],[0,3,0],[-3,0,0]])
+	c2=PLASM_CUBICHERMITE(S1)([[0.5,0,0],[0,0.5,0],[0,1,0],[-1,0,0]])
+	sur3=PLASM_CUBICHERMITE(S2)([c1,c2,[1,1,1],[-1,-1,-1]])
 	plasm_config.push(1e-4)
 	domain=Plasm.power(PLASM_INTERVALS(1)(14),PLASM_INTERVALS(1)(14))
 	out=PLASM_MAP(sur3)(domain)
 	plasm_config.pop()
 	VIEW(out)
 
+# NEW DEFINITION
+def CUBIC_HERMITE_CURVE(*args):
+    return PLASM_CUBICHERMITE(S1)(list(args))
+CHCURVE = CUBIC_HERMITE_CURVE
+def CUBIC_HERMITE_SURFACE(*args):
+    return PLASM_CUBICHERMITE(S2)(list(args))
+CHSURFACE = CUBIC_HERMITE_SURFACE
 
-def HERMITE(args):
+def PLASM_HERMITE(args):
     P1 , P2 , T1 , T2 = args
-    return CUBICHERMITE(S1)([P1, P2, T1, T2])
+    return PLASM_CUBICHERMITE(S1)([P1, P2, T1, T2])
 
 
 
@@ -2685,7 +2705,7 @@ if self_test:
 # HERMITESURFACE
 # ======================================================
 
-def HERMITESURFACE(controlpoints):
+def PLASM_HERMITESURFACE(controlpoints):
 	def H0(point):u=S1(point);u2=u*u;u3=u2*u;return u3-u2
 	def H1(point):u=S1(point);u2=u*u;u3=u2*u;return u3-2*u2+u
 	def H2(point):u=S1(point);u2=u*u;u3=u2*u;return 3*u2-2*u3
@@ -2696,7 +2716,7 @@ def HERMITESURFACE(controlpoints):
 if self_test:
 	controlpoints=[[[0,0,0 ],[2,0,1],[3,1,1],[4,1,1]],[[1,3,-1],[3,2,0],[4,2,0],[4,2,0]],[[0,4,0 ],[2,4,1],[3,3,2],[5,3,2]],[[0,6,0 ],[2,5,1],[3,4,1],[4,4,0]]]
 	domain=Plasm.power(PLASM_INTERVALS(1)(10),PLASM_INTERVALS(1)(10))
-	mapping=HERMITESURFACE(controlpoints)
+	mapping=PLASM_HERMITESURFACE(controlpoints)
 	plasm_config.push(1e-4)
 	VIEW(PLASM_MAP(mapping)(domain))
 	plasm_config.pop()

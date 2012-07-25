@@ -775,7 +775,9 @@ def DOUBLE_DIESIS (n):
     """
     return lambda List: List*int(n)
 
-
+# NEW DEFINITION:
+def REPEAT(n, args):
+    return DOUBLE_DIESIS(n)(args)
 
 if self_test: 
 	assert(DOUBLE_DIESIS  (3)([10])==[10,10,10])
@@ -1159,6 +1161,10 @@ def EMBED (up_dim):
         new_dim_pol = Plasm.getSpaceDim(pol) + up_dim
         return Plasm.embed(pol,new_dim_pol)
     return EMBED1    
+
+# NEW DEFINITION:
+def FOOTPRINT(obj):
+    return EMBED(1)(BOX([1,2])(obj))
 
 # ===================================================
 # STRUCT

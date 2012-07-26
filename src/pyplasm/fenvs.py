@@ -2074,12 +2074,13 @@ def PLASM_BEZIERCURVE (controlpoints):
     return PLASM_BEZIER(S1)(controlpoints)
 
 # NEW DEFINITIONS:
-def BEZIER_CURVE(*args):
+def BEZIER_1(*args):
     return PLASM_BEZIER(S1)(list(args))
-BECURVE = BEZIER_CURVE
-def BEZIER_SURFACE(*args):
+BE_1 = BEZIER_1
+
+def BEZIER_2(*args):
     return PLASM_BEZIER(S2)(list(args))
-BESURFACE = BEZIER_SURFACE
+BE_2 = BEZIER_2
 
 
 # ======================================================
@@ -2223,8 +2224,8 @@ if self_test:
 	VIEW(PLASM_MAP(fn)(domain))
 
 # NEW COMMAND:
-def CYLINDRICAL_SURFACE(args):
-    return CYLINDRICALSURFACE(args)
+def CYLINDRICAL_SURFACE(a, b):
+    return CYLINDRICALSURFACE([a, b])
 CYSURFACE = CYLINDRICAL_SURFACE
 
 
@@ -2290,12 +2291,13 @@ if self_test:
 	VIEW(out)
 
 # NEW DEFINITION
-def CUBIC_HERMITE_CURVE(*args):
+def CUBIC_HERMITE_1(*args):
     return PLASM_CUBICHERMITE(S1)(list(args))
-CHCURVE = CUBIC_HERMITE_CURVE
-def CUBIC_HERMITE_SURFACE(*args):
+CH_1 = CUBIC_HERMITE_1
+
+def CUBIC_HERMITE_2(*args):
     return PLASM_CUBICHERMITE(S2)(list(args))
-CHSURFACE = CUBIC_HERMITE_SURFACE
+CH_2 = CUBIC_HERMITE_2
 
 def PLASM_HERMITE(args):
     P1 , P2 , T1 , T2 = args

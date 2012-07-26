@@ -81,6 +81,27 @@ L = CIRCLE_POINTS(R, N)
 p = CONVEXHULL(*L)
 VIEW(p)
 
+# Grids - example 1:
+
+g1 = GRID([3, -1, 3, -1, 3, -1, 3])
+g2 = GRID([2, -1, 2, -1, 2])
+
+out = POWER(g1, g2)
+VIEW(out)
+
+# Grids - example 2:
+
+g1 = GRID([3, -1, 3, -1, 3, -1, 3])
+g2 = GRID([2, -1, 2, -1, 2])
+g3 = GRID([1, -1, 1])
+
+planar_grid = POWER(g1, g2)
+out = POWER(planar_grid, g3)
+
+VIEW(out)
+
+
+
 
 
 

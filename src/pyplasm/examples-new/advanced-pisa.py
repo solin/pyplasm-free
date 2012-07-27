@@ -5,7 +5,7 @@ import sys,time
 start=time.clock()
 
 # if you want to see intermediate results
-debug_tower = False
+debug_tower = True
 
 
 ScaleFactor = 3.16655256
@@ -25,131 +25,121 @@ FirstRingColumnArcWidth = FirstRingPerimeter/12.0
 
 
 # =======================================
-# basament1
+# basament 1
 # =======================================
 
-def BuildBasament1(N=24):
-	return DIFF([
-			CYLINDER([ExternalBasementRadius,BasementHeight/2.0], N),
-			CYLINDER([InternalBasementRadius,BasementHeight/2.0], N)
-	])
+def BuildBasement1(N_ext=64, N_int = 24):
+    cyl_ext = CYLINDER(ExternalBasementRadius, BasementHeight/2.0, N_ext)
+    cyl_int = CYLINDER(InternalBasementRadius, BasementHeight/2.0, N_int)
+    return DIFF(cyl_ext, cyl_int)
 
-Basament1=BuildBasament1()
+Basement1 = BuildBasement1()
 
 if debug_tower:
-	lab.view(Basament1)
-
+    VIEW(Basement1)
 
 # =======================================
-# Basament2
+# Basement 2
 # =======================================
 
-def BuildBasament2(N=24):
-	tg_alpha = (ExternalBasementRadius - ExternalFirstFloorRadius)/(BasementHeight/2.0)
-	hcone = tg_alpha*ExternalBasementRadius
-	cone1 = CONE([ExternalBasementRadius, hcone], N)
-	thebasament = INTERSECTION([Basament1,cone1])
-	reversed_cone = S(3)(-1)(cone1)
-	tcone = tg_alpha * (ExternalBasementRadius - InternalBasementRadius)
-	cone2 = T(3)(tcone)(reversed_cone)
-	return DIFF([thebasament,cone2])
+def BuildBasement2(N = 64):
+    tg_alpha = (ExternalBasementRadius - ExternalFirstFloorRadius) / (BasementHeight/2.0)
+    hcone = tg_alpha * ExternalBasementRadius
+    cone1 = CONE(ExternalBasementRadius, hcone, N)
+    thebasament = INTERSECTION(Basement1, cone1)
+    # Nice trick - mirroring the cone by scaling:
+    reversed_cone = S(cone1, 1, 1, -1)
+    tcone = tg_alpha * (ExternalBasementRadius - InternalBasementRadius)
+    cone2 = T(reversed_cone, 0, 0, tcone)
+    return DIFF(thebasament, cone2)
 
-Basament2 = BuildBasament2()
+Basement2 = BuildBasement2()
 
 if debug_tower:
-	lab.view(Basament2)
+    VIEW(Basement2)
 
 # =======================================
-# Basament
+# Basement
 # =======================================
 
-
-Basament = STRUCT([Basament1, T(3)(BasementHeight/2.0)(Basament2)])
+Basement = STRUCT(Basement1, T(Basement2, 0, 0, BasementHeight/2.0))
 
 if debug_tower:
-	lab.view(Basament)
-
-
+    VIEW(Basement)
 
 # =======================================
-# Basament
+# Basement
 # =======================================
 
+def BuildFirstFloor(N_ext = 64, N_int = 24):
+        cyl_ext = CYLINDER(ExternalFirstFloorRadius, FirstFloorHeight, N_ext)
+        cyl_int = CYLINDER(InternalFirstFloorRadius, FirstFloorHeight, N_int)
+	return DIFF(cyl_ext, cyl_int)
 
-def BuildFirstFloor(N=24):
-	return DIFF([
-		CYLINDER([ExternalFirstFloorRadius, FirstFloorHeight], 24),
-		CYLINDER([InternalFirstFloorRadius, FirstFloorHeight], 24)
-    ])
-
-
-FirstFloor=BuildFirstFloor()
+FirstFloor = BuildFirstFloor()
 
 if debug_tower:
-	lab.view(FirstFloor)
-
+    VIEW(FirstFloor)
 
 # =======================================
-# Basament
+# Basement
 # =======================================
 
+def BuildKernel(N_ext = 64, N_int = 24):
+    cyl_ext = CYLINDER(ExternalWallRadius, WallHeight, N_ext)
+    cyl_int = CYLINDER(InternalWallRadius, WallHeight, N_int)
+    return DIFF(cyl_ext, cyl_int)
 
-def BuildKernel(N=24):
-	return DIFF([
-		CYLINDER([ExternalWallRadius, WallHeight], N),
-		CYLINDER([InternalWallRadius, WallHeight], N)
-    ])
-
-Kernel=BuildKernel()
+Kernel = BuildKernel()
 
 if debug_tower:
-	lab.view(Kernel)
-
+    VIEW(Kernel)
 
 # =======================================
 # Terrace
 # =======================================
 
-def BuildTerrace(N=24):
-	tg_alpha = (0.05*ExternalFirstFloorRadius)/(0.095*ScaleFactor)
-	hcone = tg_alpha * 1.1*ExternalFirstFloorRadius
+def BuildTerrace(N = 64):
+    tg_alpha = 0.05 * ExternalFirstFloorRadius / (0.095 * ScaleFactor)
+    hcone = tg_alpha * 1.1 * ExternalFirstFloorRadius
 
-	terrace1 = DIFF([
-			CYLINDER([1.1*ExternalFirstFloorRadius,0.095*ScaleFactor/2], N),
-			CYLINDER([ExternalWallRadius, 0.095*ScaleFactor/2], N)
-	])
+    terrace1 = DIFF(
+	CYLINDER(1.1*ExternalFirstFloorRadius,0.095*ScaleFactor/2, N),
+	CYLINDER(ExternalWallRadius, 0.095*ScaleFactor/2, N)
+    )
 
-	cone1 = CONE([1.1*ExternalFirstFloorRadius, hcone], N)
-	wafer1 = INTERSECTION([terrace1,cone1])
-	return T(3)(0.095*ScaleFactor/2)(STRUCT([S(3)(-1)(wafer1), wafer1]))
+    cone1 = CONE(1.1 * ExternalFirstFloorRadius, hcone, N)
+    wafer1 = INTERSECTION(terrace1, cone1)
+    reverted_wafer1 = S(wafer1, 1, 1, -1)
+    wafer1 = T(wafer1, 0, 0, 0.095*ScaleFactor/2)
+    reverted_wafer1 = T(reverted_wafer1, 0, 0, 0.095*ScaleFactor/2)
+    return STRUCT(reverted_wafer1, wafer1)
 
 Terrace = BuildTerrace()
 
 if debug_tower:
-	lab.view(Terrace)
-
-
+    VIEW(Terrace)
 
 # =======================================
 # Column_1
 # =======================================
 
-def Column_1 (angle,N=18):
-	unit = FirstRingColumnArcWidth/2
-	basis = CYLINDER([0.11*ScaleFactor,0.03*ScaleFactor], N)
-	fusto = CYLINDER([0.095*ScaleFactor,1.75*ScaleFactor], N)
-	capitello = TRUNCONE([0.09*ScaleFactor,0.14*ScaleFactor,0.18*ScaleFactor], N)
-	box = (COMP([T([1, 2])([-0.15*ScaleFactor,-0.15*ScaleFactor]), CUBOID]))([0.30*ScaleFactor,0.30*ScaleFactor,0.28*ScaleFactor])
-	box1 = CUBOID([0.30*ScaleFactor,0.30*ScaleFactor,0.05*ScaleFactor])
-	column = TOP([TOP([TOP([TOP([TOP([box,basis]),fusto]),basis]),capitello]),box1])
-	return R(3)(angle)(T([1, 2, 3])([2.6*ScaleFactor,0,-0.2*ScaleFactor])(column))
+def Column_1 (angle, N=24):
+    unit = FirstRingColumnArcWidth/2.
+    basis = CYLINDER(0.11 * ScaleFactor, 0.03 * ScaleFactor, N)
+    fusto = CYLINDER(0.095 * ScaleFactor, 1.75*ScaleFactor, N)
+    capitello = TRUNCONE(0.09 * ScaleFactor, 0.14 * ScaleFactor, 0.18 * ScaleFactor, N)
+    box = BRICK(0.30 * ScaleFactor, 0.30 * ScaleFactor, 0.28 * ScaleFactor)
+    box = T(box, -0.15 * ScaleFactor, -0.15 * ScaleFactor, 0)
+    box1 = BRICK(0.30 * ScaleFactor, 0.30 * ScaleFactor, 0.05 * ScaleFactor)
+    column = TOP(TOP(TOP(TOP(TOP(box, basis), fusto), basis), capitello),box1)
+    column = T(column, 2.6 * ScaleFactor, 0, -0.2 * ScaleFactor)
+    return R(column, 3, angle)
 
 if debug_tower:
-	lab.view(Column_1(PI/12))
+    VIEW(Column_1(PI/12))
 
-
-ColumnScaling = (WallHeight/6.0)/(SIZE(3)(Column_1(PI/24)))
-
+ColumnScaling = WallHeight / 6.0 / (SIZE(3)(Column_1(PI/24)))
 
 # =======================================
 # Column_2
@@ -338,7 +328,7 @@ if debug_tower:
 
 
 Fabric = STRUCT([
-		T(3)((RAISE(DIFF)(BasementHeight)))(Basament), 
+		T(3)((RAISE(DIFF)(BasementHeight)))(Basement), 
 		Steps, FirstFloor, 
 		T(3)(FirstFloorHeight)(Kernel), 
 		FirstColumnRing, 
@@ -392,7 +382,7 @@ if debug_tower:
 
 Fabric = \
 	STRUCT([
-		T(3)((RAISE(DIFF)(BasementHeight)))(Basament), 
+		T(3)((RAISE(DIFF)(BasementHeight)))(Basement), 
 		Steps, FirstFloor, 
 		T(3)(FirstFloorHeight)(Kernel), 
 		FirstColumnRing, 
@@ -738,7 +728,7 @@ if debug_tower:
 
 
 Fabric = STRUCT([
-		T(3)((RAISE(DIFF)(BasementHeight)))(Basament), 
+		T(3)((RAISE(DIFF)(BasementHeight)))(Basement), 
 		Steps, 
 		FirstFloor, 
 		T(3)(FirstFloorHeight)(Kernel), 

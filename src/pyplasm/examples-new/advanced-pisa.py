@@ -25,7 +25,7 @@ FirstRingColumnArcWidth = FirstRingPerimeter/12.0
 
 
 # =======================================
-# basament 1
+# basement 1
 # =======================================
 
 def BuildBasement1(N_ext=64, N_int = 24):
@@ -46,12 +46,12 @@ def BuildBasement2(N = 64):
     tg_alpha = (ExternalBasementRadius - ExternalFirstFloorRadius) / (BasementHeight/2.0)
     hcone = tg_alpha * ExternalBasementRadius
     cone1 = CONE(ExternalBasementRadius, hcone, N)
-    thebasament = INTERSECTION(Basement1, cone1)
+    thebasement = INTERSECTION(Basement1, cone1)
     # Nice trick - mirroring the cone by scaling:
     reversed_cone = S(cone1, 1, 1, -1)
     tcone = tg_alpha * (ExternalBasementRadius - InternalBasementRadius)
     cone2 = T(reversed_cone, 0, 0, tcone)
-    return DIFF(thebasament, cone2)
+    return DIFF(thebasement, cone2)
 
 Basement2 = BuildBasement2()
 
@@ -223,8 +223,8 @@ def BuildWall_1():
 Wall_1 = BuildWall_1()
 
 
-if debug_tower:
-    VIEW(Wall_1)
+#if debug_tower:
+#    VIEW(Wall_1)
 
 
 
@@ -232,11 +232,11 @@ if debug_tower:
 # FirstColumnRing
 # =======================================
 
-FirstColumnRing = (COMP([STRUCT, DOUBLE_DIESIS(12)]))([Column_1((PI/12)), Arc_1_1, Wall_1, R(3)((RAISE(DIV)([PI,6])))])
+FirstColumnRing = (COMP([PLASM_STRUCT, DOUBLE_DIESIS(12)]))([Column_1((PI/12)), Arc_1_1, Wall_1, PLASM_R([1, 2])((RAISE(DIV)([PI,6])))])
 
 
-if debug_tower:
-	lab.view(FirstColumnRing)
+#if debug_tower:
+#    VIEW(FirstColumnRing)
 
 
 # =======================================
@@ -245,8 +245,8 @@ if debug_tower:
 
 
 def Arc_2_1 (ANGLE):
-	UNIT = FirstRingColumnArcWidth/4
-	ret_val = (COMP([COMP([OPTIMIZE, R(3)((ANGLE))]), T([1, 2, 3])([2.40*ScaleFactor, 0, 2.10*ScaleFactor*ColumnScaling])]))((STRUCT([(Arch([0.65*UNIT, 0.9*UNIT, RAISE(PROD)([1.5,UNIT])])),(Arch([0.9*UNIT, UNIT, UNIT/0.75]))])))
+	UNIT = FirstRingColumnArcWidth/4.
+	ret_val = (COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((ANGLE))]), PLASM_T([1, 2, 3])([2.40*ScaleFactor, 0, 2.10*ScaleFactor*ColumnScaling])]))((PLASM_STRUCT([(Arch([0.65*UNIT, 0.9*UNIT, RAISE(PROD)([1.5, UNIT])])),(Arch([0.9*UNIT, UNIT, UNIT/0.75]))])))
 	return ret_val
 
 
@@ -256,15 +256,14 @@ def Arc_2_1 (ANGLE):
 
 def Wall_2 (ANGLE):
 	UNIT = FirstRingColumnArcWidth/4
-	THECYLINDER = RAISE(DIFF)([CYLINDER([RAISE(PROD)([1.05,ExternalFirstFloorRadius]), RAISE(PROD)([1.35,UNIT])], 48),CYLINDER([ExternalWallRadius, RAISE(PROD)([1.35,UNIT])], 24)])
-	ret_val = (COMP([COMP([OPTIMIZE, R(3)((ANGLE))]), T(3)((2.10*ScaleFactor*ColumnScaling))]))((RAISE(DIFF)([RAISE(DIFF)([THECYLINDER,Wall_2_Ottusangle]),Wall_2_Hole([UNIT, UNIT/0.75])])))
+	THECYLINDER = RAISE(PLASM_NDIFF)([PLASM_CYLINDER([RAISE(PROD)([1.05,ExternalFirstFloorRadius]), RAISE(PROD)([1.35,UNIT])])(48), PLASM_CYLINDER([ExternalWallRadius, RAISE(PROD)([1.35, UNIT])])(24)])
+	ret_val = (COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((ANGLE))]), PLASM_T(3)((2.10*ScaleFactor*ColumnScaling))]))((RAISE(PLASM_NDIFF)([RAISE(PLASM_NDIFF)([THECYLINDER,Wall_2_Ottusangle]), Wall_2_Hole([UNIT, UNIT/0.75])])))
 	return ret_val
 
-Wall_2_Ottusangle = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, R(3)((PI/24))]), T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, R(3)((23*PI/24))]), T(1)((-100))]), CUBOID]))([200, 100, 100])]))
+Wall_2_Ottusangle = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((23*PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100])]))
 
-
-if debug_tower:
-	lab.view(Wall_2_Ottusangle)
+#if debug_tower:
+#    VIEW(Wall_2_Ottusangle)
 
 
 
@@ -273,33 +272,33 @@ if debug_tower:
 # =======================================
 
 def Wall_2_Hole (WALL_2_HOLE_arg_):
-	R2 , W = WALL_2_HOLE_arg_
-	return (T([1, 2])([2.45*ScaleFactor, 0]))(((COMP([COMP([R(2)(PI/-2.0), S(3)(2)]), T(3)((W/-2.0))]))((RAISE(DIFF)([CYLINDER([R2, 2.0*W], 24),(COMP([T(2)((RAISE(DIFF)(R2))), CUBOID]))([R2, 2*R2, W])])))))
+	R2, W = WALL_2_HOLE_arg_
+	return (PLASM_T([1, 2])([2.45*ScaleFactor, 0]))(((COMP([COMP([PLASM_R([1, 3])(PI/-2.0), PLASM_S(3)(2)]), PLASM_T(3)((W/-2.0))]))((RAISE(PLASM_NDIFF)([CYLINDER(R2, 2.0*W, 24), (COMP([PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))), CUBOID]))([R2, 2*R2, W])])))))
 
 
 # =======================================
 # SecondColumnRing
 # =======================================
 
-SecondColumnRing = (COMP([STRUCT, DOUBLE_DIESIS(24)]))([
+SecondColumnRing = (COMP([PLASM_STRUCT, DOUBLE_DIESIS(24)]))([
 		Column_2((PI/12)), 
 		Arc_2_1((PI/24)), 
 		Wall_2((PI/24)), 
-		R(3)((PI/12))
+		PLASM_R([1, 2])((PI/12))
       ])
 
 
-if debug_tower:
-	lab.view(SecondColumnRing)
+#if debug_tower:
+#    VIEW(SecondColumnRing)
 
 
 RadiusSteps = 1.9*ScaleFactor
 PitchSteps = ScaleFactor*7/1.5
 AngleSteps = 21*PI/4
 NumberOfSteps = 293
-AlphaStep = RAISE(DIV)([RAISE(DIFF)(AngleSteps),NumberOfSteps])
-ZetaStep = RAISE(DIV)([(RAISE(SUM)([FirstFloorHeight,WallHeight])),NumberOfSteps])
-StepVolume = (COMP([T(1)((RAISE(DIFF)(RadiusSteps))), CUBOID]))((SCALARVECTPROD([[0.4, 0.11, 0.8],ScaleFactor])))
+AlphaStep = RAISE(DIV)([RAISE(PLASM_NDIFF)(AngleSteps), NumberOfSteps])
+ZetaStep = RAISE(DIV)([(RAISE(SUM)([FirstFloorHeight, WallHeight])), NumberOfSteps])
+StepVolume = (COMP([PLASM_T(1)((RAISE(PLASM_NDIFF)(RadiusSteps))), CUBOID]))((SCALARVECTPROD([[0.4, 0.11, 0.8], ScaleFactor])))
 
 
 
@@ -308,44 +307,44 @@ StepVolume = (COMP([T(1)((RAISE(DIFF)(RadiusSteps))), CUBOID]))((SCALARVECTPROD(
 # =======================================
 
 def BuildStepsSegment ():
-	TRANSLATIONS = DIESIS(17)((T(3)(ZetaStep)))
-	ROTATIONS = DIESIS(17)((R(3)(AlphaStep)))
+	TRANSLATIONS = DIESIS(17)((PLASM_T(3)(ZetaStep)))
+	ROTATIONS = DIESIS(17)((PLASM_R([1, 2])(AlphaStep)))
 	OBJECTS = DIESIS(17)(StepVolume)
-	return (COMP([COMP([COMP([OPTIMIZE, STRUCT]), CAT]), TRANS]))([TRANSLATIONS, ROTATIONS, OBJECTS])
+	return (COMP([COMP([COMP([OPTIMIZE, PLASM_STRUCT]), CAT]), TRANS]))([TRANSLATIONS, ROTATIONS, OBJECTS])
 
 StepSegment = BuildStepsSegment()
 
-Steps = (COMP([COMP([OPTIMIZE, STRUCT]), DOUBLE_DIESIS(17)]))([
+Steps = (COMP([COMP([OPTIMIZE, PLASM_STRUCT]), DOUBLE_DIESIS(17)]))([
 	StepSegment, 
-	R(3)((RAISE(PROD)([17,AlphaStep]))), 
-	T(3)((17*ZetaStep))
+	PLASM_R([1, 2])((RAISE(PROD)([17, AlphaStep]))), 
+	PLASM_T(3)((17*ZetaStep))
     ])
 
 
-if debug_tower:
-	lab(Steps)
+#if debug_tower:
+#    VIEW(Steps)
 
 
 # =======================================
 # Fabric
 # =======================================
 
-
-Fabric = STRUCT([
-		T(3)((RAISE(DIFF)(BasementHeight)))(Basement), 
+Fabric = PLASM_STRUCT([
+		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
 		Steps, FirstFloor, 
-		T(3)(FirstFloorHeight)(Kernel), 
+		PLASM_T(3)(FirstFloorHeight)(Kernel), 
 		FirstColumnRing, 
-		T(3)((RAISE(DIFF)([FirstFloorHeight,(0.095*ScaleFactor)]))), 
+		PLASM_T(3)((RAISE(PLASM_NDIFF)([FirstFloorHeight,(0.095*ScaleFactor)]))), 
 		Terrace, 
-		(COMP([STRUCT, DOUBLE_DIESIS(5)]))([SecondColumnRing, T(3)((WallHeight/5)), Terrace])
+		(COMP([PLASM_STRUCT, DOUBLE_DIESIS(5)]))([SecondColumnRing, PLASM_T(3)((WallHeight/5)), Terrace])
 		])
 
+
 if debug_tower:
-	lab.view(Fabric)
+    VIEW(Fabric)
 
 
-LASTFLOORHEIGHT = WallHeight/5
+LASTFLOORHEIGHT = WallHeight/5.
 
 
 # =======================================

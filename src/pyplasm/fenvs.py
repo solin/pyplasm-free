@@ -2098,6 +2098,11 @@ def BEZIER_2(*args):
 
 BE_2 = BEZIER_2
 
+def BEZIER_3(*args):
+    return PLASM_BEZIER(S3)(list(args))
+
+BE_3 = BEZIER_3
+
 
 # ======================================================
 # coons patch
@@ -2316,6 +2321,11 @@ def CUBIC_HERMITE_2(*args):
     return PLASM_CUBICHERMITE(S2)(list(args))
 
 CH_2 = CUBIC_HERMITE_2
+
+def CUBIC_HERMITE_3(*args):
+    return PLASM_CUBICHERMITE(S3)(list(args))
+
+CH_3 = CUBIC_HERMITE_3
 
 def PLASM_HERMITE(args):
     P1 , P2 , T1 , T2 = args

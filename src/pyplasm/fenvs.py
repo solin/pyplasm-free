@@ -536,7 +536,7 @@ if self_test:
 # n-ary DIFFerence 
 # ===================================================
 
-def PLASM_DIFF(args):
+def PLASM_NDIFF(args):
 
 	if isinstance(args,list) and ISPOL(args[0]): 
 		return  PLASM_DIFFERENCE(args)
@@ -1252,7 +1252,6 @@ PLASM_DIFF = PLASM_DIFFERENCE
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def DIFFERENCE(*args):
     return PLASM_DIFFERENCE(list(args))
-
 DIFF = DIFFERENCE
 
 # xor

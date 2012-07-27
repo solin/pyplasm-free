@@ -35,8 +35,8 @@ def BuildBasement1(N_ext=64, N_int = 24):
 
 Basement1 = BuildBasement1()
 
-if debug_tower:
-    VIEW(Basement1)
+#if debug_tower:
+#    VIEW(Basement1)
 
 # =======================================
 # Basement 2
@@ -55,8 +55,8 @@ def BuildBasement2(N = 64):
 
 Basement2 = BuildBasement2()
 
-if debug_tower:
-    VIEW(Basement2)
+#if debug_tower:
+#    VIEW(Basement2)
 
 # =======================================
 # Basement
@@ -64,8 +64,8 @@ if debug_tower:
 
 Basement = STRUCT(Basement1, T(Basement2, 0, 0, BasementHeight/2.0))
 
-if debug_tower:
-    VIEW(Basement)
+#if debug_tower:
+#    VIEW(Basement)
 
 # =======================================
 # Basement
@@ -78,8 +78,8 @@ def BuildFirstFloor(N_ext = 64, N_int = 24):
 
 FirstFloor = BuildFirstFloor()
 
-if debug_tower:
-    VIEW(FirstFloor)
+#if debug_tower:
+#    VIEW(FirstFloor)
 
 # =======================================
 # Basement
@@ -92,8 +92,8 @@ def BuildKernel(N_ext = 64, N_int = 24):
 
 Kernel = BuildKernel()
 
-if debug_tower:
-    VIEW(Kernel)
+#if debug_tower:
+#    VIEW(Kernel)
 
 # =======================================
 # Terrace
@@ -117,8 +117,8 @@ def BuildTerrace(N = 64):
 
 Terrace = BuildTerrace()
 
-if debug_tower:
-    VIEW(Terrace)
+#if debug_tower:
+#    VIEW(Terrace)
 
 # =======================================
 # Column_1
@@ -136,8 +136,8 @@ def Column_1 (angle, N = 24):
     column = T(column, 2.6 * ScaleFactor, 0, -0.2 * ScaleFactor)
     return R(column, 3, angle)
 
-if debug_tower:
-    VIEW(Column_1(PI/12))
+#if debug_tower:
+#    VIEW(Column_1(PI/12))
 
 # SIZE(object, i) returns the size of the object in the i-th axial direction:
 ColumnScaling = (WallHeight / 6.0) / SIZE(Column_1(PI/24), 3)
@@ -156,7 +156,7 @@ def BuildBox1Column2():
 
 box1_column_2 = BuildBox1Column2()
 
-def Column_2 (ANGLE, N=24):
+def Column_2 (ANGLE, N=18):
     unit = FirstRingColumnArcWidth/2.0
     box0 = BRICK(0.24 * ScaleFactor, 0.24 * ScaleFactor, 0.06 * ScaleFactor)
     box0 = T(box0, -0.12*ScaleFactor, -0.12*ScaleFactor, 0)
@@ -168,7 +168,7 @@ def Column_2 (ANGLE, N=24):
     A = TOP(TOP(TOP(TOP(TOP(TOP(box0, basis0), basis1), basis2), fusto), basis2), capitello)
     A = S(A, 1, 1, ColumnScaling)
     B = box1_column_2
-    C = ALIGN([[1, MAX, MAX], [2, MED, MED], [3, MAX, MIN]])([A, B])
+    C = ALIGN(A, B, [1, MAX, MAX], [2, MID, MID], [3, MAX, MIN])
 
     ret = T(C, 2.53 * ScaleFactor, 0, 0.09 * ScaleFactor)
     return R(ret, 3, ANGLE)
@@ -185,21 +185,23 @@ def Arch (ARCH_arg_):
 	return (COMP([
 		COMP([
 		COMP([
-		OPTIMIZE, R([1, 3])(PI/-2.0)]), T(3)((W/-2.0))]), 
-      STRUCT]))([(RAISE(DIFF)([CYLINDER([R2, W], 24),(RAISE(SUM)([CYLINDER([R1, W], 24),(COMP([T(2)((RAISE(DIFF)(R2))), CUBOID]))([R2, 2*R2, W])]))])), RAISE(DIFF)([(T(2)((RAISE(DIFF)(R2))))((CUBOID([RAISE(PROD)([R2,SIN((PI/12))]), 2*R2, W]))),(T(2)((RAISE(DIFF)(R1))))((CUBOID([RAISE(PROD)([R2,SIN((PI/12))]), RAISE(PROD)([2,R1]), W])))])])
+		OPTIMIZE, PLASM_R([1, 3])(PI/-2.0)]), PLASM_T(3)((W/-2.0))]), 
+      PLASM_STRUCT]))([(RAISE(PLASM_NDIFF)([PLASM_CYLINDER([R2, W])(24),(RAISE(SUM)([PLASM_CYLINDER([R1, W])(24),(COMP([PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))), CUBOID]))([R2, 2*R2, W])]))])), RAISE(PLASM_NDIFF)([(PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))))((CUBOID([RAISE(PROD)([R2,SIN((PI/12))]), 2*R2, W]))),(PLASM_T(2)((RAISE(PLASM_NDIFF)(R1))))((CUBOID([RAISE(PROD)([R2,SIN((PI/12))]), RAISE(PROD)([2,R1]), W])))])])
 
 
 def Build_ARC_1_1():
     unit = FirstRingColumnArcWidth/2.0
 
-    ret = STRUCT([
-	      Arch([0.8*unit, unit, unit/2.0]),
-	      Arch([unit, 1.05*unit, unit/1.5])
-    ])
+    a1 = Arch([0.8*unit, unit, unit/2.0])
+    a2 = Arch([unit, 1.05*unit, unit/1.5])
+    ret = STRUCT(a1, a2)
 
     return T(ret, 2.45 * ScaleFactor, 0, 2.30 * ScaleFactor)
 
 Arc_1_1 = Build_ARC_1_1()
+
+if debug_tower:
+	VIEW(Arc_1_1)
 
 # =======================================
 # WALL_1_HOLE
@@ -493,7 +495,7 @@ def buildColumn_B():
 	FUSTO = CYLINDER([0.07*ScaleFactor, 1.40*ScaleFactor], 18)
 	CAPITELLO = TRUNCONE([0.07*ScaleFactor, 0.10*ScaleFactor, 0.16*ScaleFactor], 18)
 	BOX1 = BOX0
-	return (COMP([OPTIMIZE, T([1, 2, 3])([-18.0*2.54*ScaleFactor/24.0, 0, 0.09*ScaleFactor])]))((ALIGN([[1, MAX, MAX], [2, MED, MED], [3, MAX, MIN]])([S(3)(ColumnScaling)((TOP([TOP([TOP([TOP([TOP([TOP([BOX0,BASIS0]),BASIS1]),BASIS2]),FUSTO]),BASIS2]),CAPITELLO]))),BOX1])))
+	return (COMP([OPTIMIZE, T([1, 2, 3])([-18.0*2.54*ScaleFactor/24.0, 0, 0.09*ScaleFactor])]))((ALIGN([[1, MAX, MAX], [2, MID, MID], [3, MAX, MIN]])([S(3)(ColumnScaling)((TOP([TOP([TOP([TOP([TOP([TOP([BOX0,BASIS0]),BASIS1]),BASIS2]),FUSTO]),BASIS2]),CAPITELLO]))),BOX1])))
 
 Column_B = buildColumn_B()
 

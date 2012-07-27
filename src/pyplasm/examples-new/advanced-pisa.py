@@ -173,8 +173,8 @@ def Column_2 (ANGLE, N=18):
     ret = T(C, 2.53 * ScaleFactor, 0, 0.09 * ScaleFactor)
     return R(ret, 3, ANGLE)
 
-if debug_tower:
-    VIEW(Column_2(PI/12))
+#if debug_tower:
+#    VIEW(Column_2(PI/12))
 
 # =======================================
 # Arch
@@ -182,11 +182,13 @@ if debug_tower:
 
 def Arch (ARCH_arg_):
 	R1 , R2 , W = ARCH_arg_
+        cyl1 = CYLINDER(R2, W, 24)
+        cyl2 = CYLINDER(R1, W, 24)
 	return (COMP([
 		COMP([
 		COMP([
 		OPTIMIZE, PLASM_R([1, 3])(PI/-2.0)]), PLASM_T(3)((W/-2.0))]), 
-      PLASM_STRUCT]))([(RAISE(PLASM_NDIFF)([PLASM_CYLINDER([R2, W])(24),(RAISE(SUM)([PLASM_CYLINDER([R1, W])(24),(COMP([PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))), CUBOID]))([R2, 2*R2, W])]))])), RAISE(PLASM_NDIFF)([(PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))))((CUBOID([RAISE(PROD)([R2,SIN((PI/12))]), 2*R2, W]))),(PLASM_T(2)((RAISE(PLASM_NDIFF)(R1))))((CUBOID([RAISE(PROD)([R2,SIN((PI/12))]), RAISE(PROD)([2,R1]), W])))])])
+      PLASM_STRUCT]))([(RAISE(PLASM_NDIFF)([cyl1,(RAISE(SUM)([cyl2,(COMP([PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))), CUBOID]))([R2, 2*R2, W])]))])), RAISE(PLASM_NDIFF)([(PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))))((CUBOID([RAISE(PROD)([R2,SIN((PI/12))]), 2*R2, W]))),(PLASM_T(2)((RAISE(PLASM_NDIFF)(R1))))((CUBOID([RAISE(PROD)([R2,SIN((PI/12))]), RAISE(PROD)([2,R1]), W])))])])
 
 
 def Build_ARC_1_1():
@@ -200,8 +202,8 @@ def Build_ARC_1_1():
 
 Arc_1_1 = Build_ARC_1_1()
 
-if debug_tower:
-	VIEW(Arc_1_1)
+#if debug_tower:
+#	VIEW(Arc_1_1)
 
 # =======================================
 # WALL_1_HOLE
@@ -209,20 +211,20 @@ if debug_tower:
 
 def WALL_1_HOLE (WALL_1_HOLE_arg_):
 	R2 , W = WALL_1_HOLE_arg_
-	return (T([1, 2])([2.45*ScaleFactor, 0]))(((COMP([COMP([R(2)(PI/-2.0), S(3)(2)]), T(3)((W/-2.0))]))((RAISE(DIFF)([CYLINDER([R2, 2.0*W], 24),(COMP([T(2)((RAISE(DIFF)(R2))), CUBOID]))([R2, 2*R2, W])])))))
+	return (PLASM_T([1, 2])([2.45*ScaleFactor, 0]))(((COMP([COMP([PLASM_R([1, 3])(PI/-2.0), PLASM_S(3)(2)]), PLASM_T(3)((W/-2.0))]))((RAISE(PLASM_NDIFF)([CYLINDER(R2, 2.0*W, 24),(COMP([PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))), CUBOID]))([R2, 2*R2, W])])))))
 
 
 def BuildWall_1():
 	UNIT = FirstRingColumnArcWidth/2.0
-	THECYLINDER = RAISE(DIFF)([CYLINDER([RAISE(PROD)([1.08,ExternalFirstFloorRadius]), 1.1*UNIT], 24),CYLINDER([ExternalWallRadius, 1.1*UNIT], 24)])
-	OTTUSANGLE = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, R(3)((PI/12))]), T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, R(3)((11*PI/12))]), T(1)((-100))]), CUBOID]))([200, 100, 100])]))
-	return T(3)(2.30*ScaleFactor)(RAISE(DIFF)([RAISE(DIFF)([THECYLINDER,OTTUSANGLE]),WALL_1_HOLE([1.05*UNIT, UNIT/1.5])]))
+	THECYLINDER = RAISE(PLASM_NDIFF)([CYLINDER(RAISE(PROD)([1.08,ExternalFirstFloorRadius]), 1.1*UNIT, 24),CYLINDER(ExternalWallRadius, 1.1*UNIT, 24)])
+	OTTUSANGLE = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/12))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((11*PI/12))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100])]))
+	return PLASM_T(3)(2.30*ScaleFactor)(RAISE(PLASM_NDIFF)([RAISE(PLASM_NDIFF)([THECYLINDER, OTTUSANGLE]), WALL_1_HOLE([1.05*UNIT, UNIT/1.5])]))
 
 Wall_1 = BuildWall_1()
 
 
 if debug_tower:
-	lab.view(Wall_1)
+    VIEW(Wall_1)
 
 
 

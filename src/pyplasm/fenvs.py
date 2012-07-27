@@ -996,6 +996,7 @@ def PLASM_CONVEXHULL (points):
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def CONVEXHULL(*args):
     return PLASM_CONVEXHULL(list(args))
+
 CHULL = CONVEXHULL
 CH = CONVEXHULL
 
@@ -1099,6 +1100,7 @@ if self_test:
 def SCALE(obj, a, b, c):
     return PLASM_SCALE([1, 2, 3])([a, b, c])(obj)
 S = SCALE
+
 # ===================================================
 # ROTATE
 # ===================================================
@@ -1226,6 +1228,7 @@ def PLASM_UNION(objs_list):
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def UNION(*args):
     return PLASM_UNION(list(args))
+
 U = UNION
 
 
@@ -1249,6 +1252,7 @@ PLASM_DIFF = PLASM_DIFFERENCE
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def DIFFERENCE(*args):
     return PLASM_DIFFERENCE(list(args))
+
 DIFF = DIFFERENCE
 
 # xor
@@ -1258,7 +1262,6 @@ def PLASM_XOR(objs_list):
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def XOR(*args):
     return PLASM_XOR(list(args))
-
 
 if self_test: 
 	assert(Plasm.limits(PLASM_UNION([Plasm.cube(2,0,1),Plasm.cube(2,0.5,1.5)])).fuzzyEqual(Boxf(Vecf(1,0,0),Vecf(1,1.5,1.5))))
@@ -1305,6 +1308,7 @@ if self_test:
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def POWER(*args):
     return PLASM_POWER(list(args))
+
 
 
 # ===================================================
@@ -1378,18 +1382,22 @@ def UNIT_SQUARE(n, m):
 # SIZE
 # ===================================================
 
-def SIZE (List):
-    def SIZE1 (pol): 
+def PLASM_SIZE (List):
+    def PLASM_SIZE1 (pol): 
         size = Plasm.limits(pol).size()
         return [size[i] for i in List] if isinstance(List,list) else size[List]
-    return SIZE1
+    return PLASM_SIZE1
 
 if self_test: 
-	assert(SIZE(1)(Plasm.cube(2))==1)
-	assert(SIZE([1,3])(PLASM_SCALE([1, 2, 3])([1, 2, 3])(Plasm.cube(3)))==[1,3])
+	assert(PLASM_SIZE(1)(Plasm.cube(2))==1)
+	assert(PLASM_SIZE([1,3])(PLASM_SCALE([1, 2, 3])([1, 2, 3])(Plasm.cube(3)))==[1,3])
+
+# NEW_DEFINITION:
+def SIZE(pol, List):
+    return PLASM_SIZE(List)(pol)
 
 # ===================================================
-# MIN/MAX/MED
+# MIN/MAX/MID
 # ===================================================
 def MIN  (List):
     def MIN1 (pol):
@@ -1404,19 +1412,19 @@ def MAX  (List):
     return MAX1
 
 
-def MED  (List):
-    def MED1 (pol):
+def MID  (List):
+    def MID1 (pol):
         center = Plasm.limits(pol).center()
         return [center [i] for i in List] if isinstance(List,list) else center[List]
-    return MED1
+    return MID1
 
 if self_test: 
 	assert(MIN(1)(Plasm.cube(2))==0)
 	assert(MIN([1,3])(PLASM_TRANSLATE([1, 2, 3])([10, 20, 30])(Plasm.cube(3)))==[10,30])
 	assert(MAX(1)(Plasm.cube(2))==1)
 	assert(MAX([1,3])(PLASM_TRANSLATE([1, 2, 3])([10, 20, 30])(Plasm.cube(3)))==[11,31])
-	assert(MED(1)(Plasm.cube(2))==0.5)
-	assert(MED([1,3])(Plasm.cube(3))==[0.5,0.5])
+	assert(MID(1)(Plasm.cube(2))==0.5)
+	assert(MID([1,3])(Plasm.cube(3))==[0.5,0.5])
 
 
 
@@ -1444,8 +1452,8 @@ if self_test:
 # alignment
 # =============================================
 
-def ALIGN (args):
-    def ALIGN0 (args,pols):
+def PLASM_ALIGN (args):
+    def PLASM_ALIGN0 (args,pols):
         pol1 , pol2 = pols
         box1,box2=(Plasm.limits(pol1),Plasm.limits(pol2))
         if isinstance(args,list) and len(args)>0 and ISNUM(args[0]): 
@@ -1457,14 +1465,14 @@ def ALIGN (args):
                 p2=box2.p1 if pos2 is MIN else (box2.p2 if pos2 is MAX else box2.center());p2=p2[index] if index<=p2.dim else 0.0                
                 vt.set(index,vt[index]-(p2-p1))
         return Plasm.Struct([pol1,Plasm.translate(pol2,vt)])
-    return lambda pol: ALIGN0(args,pol)
+    return lambda pol: PLASM_ALIGN0(args,pol)
 
-PLASM_TOP = ALIGN([[3, MAX, MIN], [1, MED, MED], [2, MED, MED]])
-PLASM_BOTTOM=ALIGN([[3, MIN, MAX], [1, MED, MED], [2, MED, MED]])
-PLASM_LEFT=ALIGN([[1, MIN, MAX], [3, MIN, MIN]])
-PLASM_RIGHT=ALIGN([[1, MAX, MIN], [3, MIN, MIN]])
-PLASM_UP=ALIGN([[2, MAX, MIN], [3, MIN, MIN]])
-PLASM_DOWN=ALIGN([[2, MIN, MAX], [3, MIN, MIN]])
+PLASM_TOP = PLASM_ALIGN([[3, MAX, MIN], [1, MID, MID], [2, MID, MID]])
+PLASM_BOTTOM = PLASM_ALIGN([[3, MIN, MAX], [1, MID, MID], [2, MID, MID]])
+PLASM_LEFT = PLASM_ALIGN([[1, MIN, MAX], [3, MIN, MIN]])
+PLASM_RIGHT = PLASM_ALIGN([[1, MAX, MIN], [3, MIN, MIN]])
+PLASM_UP = PLASM_ALIGN([[2, MAX, MIN], [3, MIN, MIN]])
+PLASM_DOWN = PLASM_ALIGN([[2, MIN, MAX], [3, MIN, MIN]])
 
 if self_test: 
    assert(Plasm.limits(ALIGN([3,MAX,MIN])([Plasm.cube(3),Plasm.cube(3)]))==Boxf(Vecf(1,0,0,0),Vecf(1,1,1,2)))
@@ -1488,6 +1496,13 @@ def UP(pol1, pol2):
     return PLASM_UP([pol1, pol2])
 def DOWN(pol1, pol2):
     return PLASM_DOWN([pol1, pol2])
+
+def ALIGN(obj1, obj2, align1 = None, align2 = None, align3 = None):
+    L = []
+    if align1 != None: L.append(align1) 
+    if align2 != None: L.append(align2) 
+    if align3 != None: L.append(align3) 
+    return PLASM_ALIGN(L)([obj1, obj2])
 
 # ===================================================
 # BOX of a pol complex
@@ -2076,10 +2091,12 @@ def PLASM_BEZIERCURVE (controlpoints):
 # NEW DEFINITIONS:
 def BEZIER_1(*args):
     return PLASM_BEZIER(S1)(list(args))
+
 BE_1 = BEZIER_1
 
 def BEZIER_2(*args):
     return PLASM_BEZIER(S2)(list(args))
+
 BE_2 = BEZIER_2
 
 
@@ -2293,10 +2310,12 @@ if self_test:
 # NEW DEFINITION
 def CUBIC_HERMITE_1(*args):
     return PLASM_CUBICHERMITE(S1)(list(args))
+
 CH_1 = CUBIC_HERMITE_1
 
 def CUBIC_HERMITE_2(*args):
     return PLASM_CUBICHERMITE(S2)(list(args))
+
 CH_2 = CUBIC_HERMITE_2
 
 def PLASM_HERMITE(args):
@@ -2320,7 +2339,6 @@ def PLASM_EXTRUDE (args):
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def EXTRUDE(*args):
     return PLASM_EXTRUDE(list(args))
-
 
 def MULTEXTRUDE (P):
 	def MULTEXTRUDE0 (H):
@@ -2836,11 +2854,11 @@ SOUTH    = CONS([CONS([MIN(1), MIN(2)]), CONS([MAX(1), MIN(2)])])
 WEST     = CONS([CONS([MIN(1), MAX(2)]), CONS([MIN(1), MIN(2)])])
 EAST     = CONS([CONS([MAX(1), MIN(2)]), CONS([MAX(1), MAX(2)])])
 
-MXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), MED([1, 2])]), ID])])
-MXBY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MED(1), MIN(2)])]), ID])])
-MXTY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MED(1), MAX(2)])]), ID])])
-LXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MIN(1), MED(2)])]), ID])])
-RXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MAX(1), MED(2)])]), ID])])
+MXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), MID([1, 2])]), ID])])
+MXBY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MID(1), MIN(2)])]), ID])])
+MXTY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MID(1), MAX(2)])]), ID])])
+LXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MIN(1), MID(2)])]), ID])])
+RXMY = COMP([PLASM_STRUCT, CONS([COMP([COMP([PLASM_T([1, 2]), AA(RAISE( PLASM_DIFF))]), CONS([MAX(1), MID(2)])]), ID])])
 
 
 # ===================================================

@@ -124,7 +124,7 @@ if debug_tower:
 # Column_1
 # =======================================
 
-def Column_1 (angle, N=24):
+def Column_1 (angle, N = 24):
     unit = FirstRingColumnArcWidth/2.
     basis = CYLINDER(0.11 * ScaleFactor, 0.03 * ScaleFactor, N)
     fusto = CYLINDER(0.095 * ScaleFactor, 1.75*ScaleFactor, N)
@@ -139,46 +139,46 @@ def Column_1 (angle, N=24):
 if debug_tower:
     VIEW(Column_1(PI/12))
 
-ColumnScaling = WallHeight / 6.0 / (SIZE(3)(Column_1(PI/24)))
+# SIZE(object, i) returns the size of the object in the i-th axial direction:
+ColumnScaling = (WallHeight / 6.0) / SIZE(Column_1(PI/24), 3)
 
 # =======================================
 # Column_2
 # =======================================
 
 def BuildBox1Column2():
-	y = 0.13*ScaleFactor
-	x = -4*y
-	z = y
-	dy = math.tan(PI/36)*(-x)
-	return MKPOL([[[0, y, 0], [0, -y, 0], [x, y-dy, 0], [x, dy-y, 0], [0, y, z], [0, -y, z], [x, y-dy, z], [x, dy-y, z]], [FROMTO([1,8])], [[1]]])
+    y = 0.13 * ScaleFactor
+    x = -4*y
+    z = y
+    dy = math.tan(PI/36)*(-x)
+    return MKPOL([[[0, y, 0], [0, -y, 0], [x, y-dy, 0], [x, dy-y, 0], [0, y, z], [0, -y, z], \
+                   [x, y-dy, z], [x, dy-y, z]], [FROMTO([1,8])], [[1]]])
 
 box1_column_2 = BuildBox1Column2()
 
-def Column_2 (ANGLE,N=18):
-	unit = FirstRingColumnArcWidth/2.0
-	transl = T([1, 2])([-0.12*ScaleFactor, -0.12*ScaleFactor])
-	box0 = (COMP([transl, CUBOID]))([0.24*ScaleFactor, 0.24*ScaleFactor, 0.06*ScaleFactor])
-	basis0 = CYLINDER([0.11*ScaleFactor, ScaleFactor*0.02], N)
-	basis1 = CYLINDER([0.08*ScaleFactor, 0.04*ScaleFactor], N)
-	basis2 = CYLINDER([0.09*ScaleFactor, ScaleFactor*0.02], N)
-	fusto  = CYLINDER([0.07*ScaleFactor, 1.40*ScaleFactor], N)
-	capitello = TRUNCONE([0.07*ScaleFactor, 0.10*ScaleFactor, 0.16*ScaleFactor], N)
+def Column_2 (ANGLE, N=24):
+    unit = FirstRingColumnArcWidth/2.0
+    box0 = BRICK(0.24 * ScaleFactor, 0.24 * ScaleFactor, 0.06 * ScaleFactor)
+    box0 = T(box0, -0.12*ScaleFactor, -0.12*ScaleFactor, 0)
+    basis0 = CYLINDER(0.11 * ScaleFactor, ScaleFactor * 0.02, N)
+    basis1 = CYLINDER(0.08 * ScaleFactor, 0.04 * ScaleFactor, N)
+    basis2 = CYLINDER(0.09 * ScaleFactor, ScaleFactor * 0.02, N)
+    fusto  = CYLINDER(0.07 * ScaleFactor, 1.40 * ScaleFactor, N)
+    capitello = TRUNCONE(0.07 * ScaleFactor, 0.10 * ScaleFactor, 0.16 * ScaleFactor, N)
+    A = TOP(TOP(TOP(TOP(TOP(TOP(box0, basis0), basis1), basis2), fusto), basis2), capitello)
+    A = S(A, 1, 1, ColumnScaling)
+    B = box1_column_2
+    C = ALIGN([[1, MAX, MAX], [2, MED, MED], [3, MAX, MIN]])([A, B])
 
-	A=S(3)(ColumnScaling)(TOP([(TOP([(TOP([(TOP([(TOP([(TOP([box0,basis0])),basis1])),basis2])),fusto])),basis2])),capitello]))
-	B=box1_column_2
-	C=ALIGN([[1, MAX, MAX], [2, MED, MED], [3, MAX, MIN]])([A,B])
-
-	ret=T([1, 2, 3])([2.53*ScaleFactor, 0, 0.09*ScaleFactor])(C)
-	return R(3)(ANGLE) (ret)
+    ret = T(C, 2.53 * ScaleFactor, 0, 0.09 * ScaleFactor)
+    return R(ret, 3, ANGLE)
 
 if debug_tower:
-	lab.view(Column_2(PI/12))
-
+    VIEW(Column_2(PI/12))
 
 # =======================================
 # Arch
 # =======================================
-
 
 def Arch (ARCH_arg_):
 	R1 , R2 , W = ARCH_arg_
@@ -190,14 +190,14 @@ def Arch (ARCH_arg_):
 
 
 def Build_ARC_1_1():
-	unit = FirstRingColumnArcWidth/2.0
+    unit = FirstRingColumnArcWidth/2.0
 
-	ret=STRUCT([
-		Arch([0.8*unit, unit, unit/2.0]),
-		Arch([unit, 1.05*unit, unit/1.5])
-	])
+    ret = STRUCT([
+	      Arch([0.8*unit, unit, unit/2.0]),
+	      Arch([unit, 1.05*unit, unit/1.5])
+    ])
 
-	return T([1, 2, 3])([2.45*ScaleFactor, 0, 2.30*ScaleFactor])(ret)
+    return T(ret, 2.45 * ScaleFactor, 0, 2.30 * ScaleFactor)
 
 Arc_1_1 = Build_ARC_1_1()
 

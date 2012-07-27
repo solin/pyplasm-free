@@ -385,33 +385,32 @@ TowerCap = buildTowerCap()
 # =======================================
 
 Fabric = \
-	STRUCT([
-		T(3)((RAISE(DIFF)(BasementHeight)))(Basement), 
+	STRUCT(
+		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
 		Steps, FirstFloor, 
-		T(3)(FirstFloorHeight)(Kernel), 
+		PLASM_T(3)(FirstFloorHeight)(Kernel), 
 		FirstColumnRing, 
-		T(3)((RAISE(DIFF)([FirstFloorHeight,(0.095*ScaleFactor)]))), 
+		PLASM_T(3)((RAISE(PLASM_NDIFF)([FirstFloorHeight,(0.095*ScaleFactor)]))), 
 		Terrace, 
-		(COMP([STRUCT, DOUBLE_DIESIS(6)]))([SecondColumnRing, T(3)(WallHeight/5), Terrace]), 
-		T(3)((WallHeight)), 
+		(COMP([PLASM_STRUCT, DOUBLE_DIESIS(6)]))([SecondColumnRing, PLASM_T(3)(WallHeight/5), Terrace]), 
+		PLASM_T(3)((WallHeight)), 
 		TowerCap
-	])
-
-if debug_tower:
-	VIEW(Fabric)
-
+	)
 
 Int7Height = 1.7*ScaleFactor
 Ext7Height = 2.3*ScaleFactor
-C11 = BEZIER(S1)([[InternalWallRadius, 0, 0], [InternalWallRadius, 0, Int7Height]])
-C12 = BEZIER(S1)([[ExternalWallRadius, 0, 0], [ExternalWallRadius, 0, Ext7Height]])
-SURF1 = BEZIER(S2)([C11, C12])
-C21 = HERMITE([[InternalWallRadius, 0.0, Int7Height], [0.75, 0.0, (Ext7Height-0.25)], [-1.0, 0.0, 2.5], [-3.0, 0.0, 0.0]])
-C22 = BEZIER(S1)([[ExternalWallRadius, 0.0, Ext7Height], [0.75, 0.0, Ext7Height]])
-SURF2 = BEZIER(S2)([C21, C22])
-C31 = BEZIER(S1)([[ExternalWallRadius, 0, Int7Height], [ExternalWallRadius, 0, Ext7Height]])
-C32 = BEZIER(S1)([[(ExternalWallRadius+1), 0, Int7Height], [(ExternalWallRadius+1), 0, RAISE(DIV)([((Int7Height+Ext7Height)),2])]])
-SURF3 = BEZIER(S2)([C31, C32])
+C11 = PLASM_BEZIER(S1)([[InternalWallRadius, 0, 0], [InternalWallRadius, 0, Int7Height]])
+C12 = PLASM_BEZIER(S1)([[ExternalWallRadius, 0, 0], [ExternalWallRadius, 0, Ext7Height]])
+SURF1 = PLASM_BEZIER(S2)([C11, C12])
+C21 = PLASM_HERMITE([[InternalWallRadius, 0.0, Int7Height], [0.75, 0.0, (Ext7Height-0.25)], [-1.0, 0.0, 2.5], [-3.0, 0.0, 0.0]])
+C22 = PLASM_BEZIER(S1)([[ExternalWallRadius, 0.0, Ext7Height], [0.75, 0.0, Ext7Height]])
+SURF2 = PLASM_BEZIER(S2)([C21, C22])
+C31 = PLASM_BEZIER(S1)([[ExternalWallRadius, 0, Int7Height], [ExternalWallRadius, 0, Ext7Height]])
+C32 = PLASM_BEZIER(S1)([[(ExternalWallRadius+1), 0, Int7Height], [(ExternalWallRadius+1), 0, RAISE(DIV)([((Int7Height+Ext7Height)),2])]])
+SURF3 = PLASM_BEZIER(S2)([C31, C32])
+
+#if debug_tower:
+#   VIEW(Fabric)
 
 # =======================================
 # Solid
@@ -421,13 +420,13 @@ SURF3 = BEZIER(S2)([C31, C32])
 def Solid (SURF):
 	return \
 		[
-			RAISE(DIFF)([
-				(RAISE(PROD)([  COMP([S1,SURF])   ,COMP([COS, S3])])),
-				(RAISE(PROD)([  COMP([S2,SURF])  ,COMP([SIN, S3])]))]), 
-				 RAISE(SUM )([(RAISE(PROD)([    COMP([S2,SURF])  ,COMP([COS, S3])])),
-				(RAISE(PROD)([   COMP([S1,SURF])    ,COMP([SIN, S3])]))
+			RAISE(PLASM_NDIFF)([
+				(RAISE(PROD)([  COMP([S1, SURF]), COMP([COS, S3])])),
+				(RAISE(PROD)([  COMP([S2, SURF]), COMP([SIN, S3])]))]), 
+				 RAISE(SUM)([(RAISE(PROD)([COMP([S2, SURF]), COMP([COS, S3])])),
+				(RAISE(PROD)([COMP([S1, SURF]), COMP([SIN, S3])]))
 			]), 
-			COMP([S3,SURF])
+			COMP([S3, SURF])
 		]
 
 # =======================================
@@ -436,40 +435,38 @@ def Solid (SURF):
 
 
 def buildOUT1():
-	domain = (RAISE(PROD)([RAISE(PROD)([INTERVALS(1.0)(1),INTERVALS(1.0)(1)]),INTERVALS((3*PI/2))(18)]))
-	return MAP((Solid(SURF1)))(domain)
+	domain = (RAISE(PROD)([RAISE(PROD)([INTERVALS(1.0, 1), INTERVALS(1.0, 1)]), INTERVALS(3*PI/2, 36)]))
+	return PLASM_MAP((Solid(SURF1)))(domain)
 
 Out1 = buildOUT1()
 
-if debug_tower:
-	lab.view(Out1)
-
+#if debug_tower:
+#   VIEW(Out1)
 
 # =======================================
 # Out2
 # =======================================
 
-
 def buildOUT2():
-	domain = (RAISE(PROD)([RAISE(PROD)([INTERVALS(1.0)(9),INTERVALS(1.0)(1)]),INTERVALS((3*PI/2))(18)]))
-	return MAP((Solid(SURF1)))(domain)
+	domain = (RAISE(PROD)([RAISE(PROD)([INTERVALS(1.0, 9), INTERVALS(1.0, 1)]), INTERVALS((3*PI/2), 36)]))
+	return PLASM_MAP((Solid(SURF1)))(domain)
 
 Out2 = buildOUT2()
 
 
-if debug_tower:
-	lab.view(Out2)
+#if debug_tower:
+#   VIEW(Out2)
 
 # =======================================
 # Out3
 # =======================================
 
 
-Out3 = MAP((Solid(SURF3)))((RAISE(PROD)([(COMP([SQR, INTERVALS(1.0)]))(1),INTERVALS((3*PI/2))(18)])))
+Out3 = PLASM_MAP((Solid(SURF3)))((RAISE(PROD)([(COMP([SQR, PLASM_INTERVALS(1.0)]))(1), INTERVALS((3*PI/2), 36)])))
 
 
-if debug_tower:
-	lab.view(Out3)
+#if debug_tower:
+#   VIEW(Out3)
 
 
 # =======================================
@@ -477,10 +474,10 @@ if debug_tower:
 # =======================================
 
 
-Cap = STRUCT([Out1, Out2, Out3])
+Cap = STRUCT(Out1, Out2, Out3)
 
-if debug_tower:
-	lab.view(Cap)
+#if debug_tower:
+#    VIEW(Cap)
 
 # =======================================
 # Column_B
@@ -489,64 +486,55 @@ if debug_tower:
 
 def buildColumn_B():
 	UNIT = FirstRingColumnArcWidth/2.0
-	TRANSL = T([1, 2])([-0.12*ScaleFactor, -0.12*ScaleFactor])
+	TRANSL = PLASM_T([1, 2])([-0.12*ScaleFactor, -0.12*ScaleFactor])
 	BOX0 = (COMP([TRANSL, CUBOID]))([0.24*ScaleFactor, 0.24*ScaleFactor, 0.06*ScaleFactor])
-	BASIS0 = CYLINDER([0.11*ScaleFactor, ScaleFactor*0.02], 18)
-	BASIS1 = CYLINDER([0.08*ScaleFactor, 0.04*ScaleFactor], 18)
-	BASIS2 = CYLINDER([0.09*ScaleFactor, ScaleFactor*0.02], 18)
-	FUSTO = CYLINDER([0.07*ScaleFactor, 1.40*ScaleFactor], 18)
-	CAPITELLO = TRUNCONE([0.07*ScaleFactor, 0.10*ScaleFactor, 0.16*ScaleFactor], 18)
+	BASIS0 = CYLINDER(0.11*ScaleFactor, ScaleFactor*0.02, 36)
+	BASIS1 = CYLINDER(0.08*ScaleFactor, 0.04*ScaleFactor, 36)
+	BASIS2 = CYLINDER(0.09*ScaleFactor, ScaleFactor*0.02, 36)
+	FUSTO = CYLINDER(0.07*ScaleFactor, 1.40*ScaleFactor, 36)
+	CAPITELLO = TRUNCONE(0.07*ScaleFactor, 0.10*ScaleFactor, 0.16*ScaleFactor, 36)
 	BOX1 = BOX0
-	return (COMP([OPTIMIZE, T([1, 2, 3])([-18.0*2.54*ScaleFactor/24.0, 0, 0.09*ScaleFactor])]))((ALIGN([[1, MAX, MAX], [2, MID, MID], [3, MAX, MIN]])([S(3)(ColumnScaling)((TOP([TOP([TOP([TOP([TOP([TOP([BOX0,BASIS0]),BASIS1]),BASIS2]),FUSTO]),BASIS2]),CAPITELLO]))),BOX1])))
+	return (COMP([OPTIMIZE, PLASM_T([1, 2, 3])([-18.0*2.54*ScaleFactor/24.0, 0, 0.09*ScaleFactor])]))((PLASM_ALIGN([[1, MAX, MAX], [2, MID, MID], [3, MAX, MIN]])([PLASM_S(3)(ColumnScaling)(( TOP(TOP(TOP(TOP(TOP(TOP(BOX0, BASIS0), BASIS1), BASIS2), FUSTO), BASIS2), CAPITELLO) )),BOX1])))
 
 Column_B = buildColumn_B()
 
-
-if debug_tower:
-	VIEW(Column_B)
+#if debug_tower:
+#    VIEW(Column_B)
 
 
 # =======================================
 # Arc_2_b
 # =======================================
 
-
-
-
 def buildARC_2_B():
 	UNIT = FirstRingColumnArcWidth/4
-	return (COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/18))]), T([1, 2, 3])([2.53*ScaleFactor*18.0/24.0, 0, ColumnScaling*2.08*ScaleFactor])]))((STRUCT([Arch([0.65*UNIT, 0.9*UNIT, 0.5*UNIT]),Arch([0.9*UNIT, 1.1*UNIT, 0.65*UNIT])])))
+	return (COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/18))]), PLASM_T([1, 2, 3])([2.53*ScaleFactor*18.0/24.0, 0, ColumnScaling*2.08*ScaleFactor])]))((PLASM_STRUCT([Arch([0.65*UNIT, 0.9*UNIT, 0.5*UNIT]), Arch([0.9*UNIT, 1.1*UNIT, 0.65*UNIT])])))
 
 Arc_2_b = buildARC_2_B()
 
 def buildARC_2_B():
 	UNIT = FirstRingColumnArcWidth/4
-	return (COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/18))]), T([1, 2, 3])([2.53*ScaleFactor*18.0/24.0, 0, ColumnScaling*2.08*ScaleFactor])]))((STRUCT([Arch([0.65*UNIT, 0.9*UNIT, 0.5*UNIT]),Arch([0.9*UNIT, 1.1*UNIT, 0.65*UNIT])])))
+	return (COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/18))]), PLASM_T([1, 2, 3])([2.53*ScaleFactor*18.0/24.0, 0, ColumnScaling*2.08*ScaleFactor])]))((PLASM_STRUCT([Arch([0.65*UNIT, 0.9*UNIT, 0.5*UNIT]), Arch([0.9*UNIT, 1.1*UNIT, 0.65*UNIT])])))
 
 Arc_2_b = buildARC_2_B()
 
-
-
-if debug_tower:
-	VIEW(Arc_2_b)
+#if debug_tower:
+#    VIEW(Arc_2_b)
 
 # =======================================
 # Wall_B_Ottusangle
 # =======================================
 
-
 def Wall_B (ANGLE):
 	UNIT = FirstRingColumnArcWidth/4
-	THECYLINDER = RAISE(DIFF)([PLASM_CYLINDER([RAISE(PROD)([1.05,ExternalFirstFloorRadius]), RAISE(PROD)([1.35,UNIT])])(48), PLASM_CYLINDER([ExternalWallRadius, RAISE(PROD)([1.35,UNIT])])(24)])
-	ret_val = (COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((ANGLE))]), T(3)((RAISE(PROD)([2.10*18.0*ScaleFactor/24.0,ColumnScaling])))]))((RAISE(DIFF)([RAISE(DIFF)([THECYLINDER,Wall_B_Ottusangle]),Wall_B_Hole([UNIT, UNIT/0.75])])))
+	THECYLINDER = RAISE(PLASM_NDIFF)([PLASM_CYLINDER([RAISE(PROD)([1.05,ExternalFirstFloorRadius]), RAISE(PROD)([1.35,UNIT])])(48), PLASM_CYLINDER([ExternalWallRadius, RAISE(PROD)([1.35,UNIT])])(24)])
+	ret_val = (COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((ANGLE))]), PLASM_T(3)((RAISE(PROD)([2.10*18.0*ScaleFactor/24.0,ColumnScaling])))]))((RAISE(DIFF)([RAISE(DIFF)([THECYLINDER,Wall_B_Ottusangle]),Wall_B_Hole([UNIT, UNIT/0.75])])))
 	return ret_val
 
+Wall_B_Ottusangle = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((23*PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100])]))
 
-Wall_B_Ottusangle = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((23*PI/24))]), T(1)((-100))]), CUBOID]))([200, 100, 100])]))
-
-if debug_tower:
-	VIEW(Wall_B_Ottusangle)
-
+#if debug_tower:
+#    VIEW(Wall_B_Ottusangle)
 
 # =======================================
 # TopTower
@@ -554,58 +542,51 @@ if debug_tower:
 
 def Wall_B_Hole (Wall_B_Hole_arg_):
 	R2 , W = Wall_B_Hole_arg_
-	return (T([1, 2])([2.45*ScaleFactor, 0]))(((COMP([COMP([PLASM_R([1, 3])(PI/-2.0), S(3)(2)]), T(3)((W/-2.0))]))((RAISE(DIFF)([PLASM_CYLINDER([R2, W*2.0])(24),(COMP([T(2)((RAISE(DIFF)(R2))), CUBOID]))([R2, 2*R2, W])])))))
+	return (T([1, 2])([2.45*ScaleFactor, 0]))(((COMP([COMP([PLASM_R([1, 3])(PI/-2.0), PLASM_S(3)(2)]), T(3)((W/-2.0))]))((RAISE(PLASM_NDIFF)([PLASM_CYLINDER([R2, W*2.0])(24), (COMP([PLASM_T(2)((RAISE(PLASM_NDIFF)(R2))), CUBOID]))([R2, 2*R2, W])])))))
 
-TopTower = STRUCT([SecondColumnRing, Cap, T(3)((WallHeight/5.0)), Terrace])
+TopTower = STRUCT(SecondColumnRing, Cap, PLASM_T(3)((WallHeight/5.0)), Terrace)
 
 
-if debug_tower:
-	lab.view(TopTower)
-
+#if debug_tower:
+#    VIEW(TopTower)
 
 # =======================================
 # Tooth
 # =======================================
 
 def tooth_width (DR):
-	return RAISE(SUM)([RAISE(DIFF)([ExternalWallRadius,InternalWallRadius]),DR])
-
+	return RAISE(SUM)([RAISE(PLASM_NDIFF)([ExternalWallRadius, InternalWallRadius]), DR])
 
 def tooth_mymap1 (tooth_mymap1_arg_):
-	DR , H = tooth_mymap1_arg_
-	return MAP([RAISE(PROD)([(RAISE(SUM)([S2,S3])),COMP([COS, S1])]), RAISE(PROD)([(RAISE(SUM)([S2,S3])),COMP([SIN, S1])]), S3])((RAISE(PROD)([RAISE(PROD)([INTERVALS((PI/106))(1),T(1)((InternalWallRadius))((INTERVALS((tooth_width(DR)))(1)))]),INTERVALS(H)(1)])))
-
-
+	DR, H = tooth_mymap1_arg_
+	return PLASM_MAP([RAISE(PROD)([(RAISE(SUM)([S2, S3])), COMP([COS, S1])]), RAISE(PROD)([(RAISE(SUM)([S2, S3])), COMP([SIN, S1])]), S3])((RAISE(PROD)([RAISE(PROD)([INTERVALS((PI/106), 1), PLASM_T(1)((InternalWallRadius))((INTERVALS((tooth_width(DR)), 1)))]), INTERVALS(H, 1)])))
 
 def Tooth_MyMap2 (Tooth_MyMap2_arg_):
-	DR , H = Tooth_MyMap2_arg_
-	return MAP([RAISE(PROD)([(S2),(COMP([COS, S1]))]), RAISE(PROD)([(S2),(COMP([SIN, S1]))]), S3])((RAISE(PROD)([RAISE(PROD)([INTERVALS((PI/106))(1),T(1)((InternalWallRadius))((INTERVALS((tooth_width(DR)))(1)))]),INTERVALS(H)(1)])))
-
+	DR, H = Tooth_MyMap2_arg_
+	return PLASM_MAP([RAISE(PROD)([(S2),(COMP([COS, S1]))]), RAISE(PROD)([(S2), (COMP([SIN, S1]))]), S3])((RAISE(PROD)([RAISE(PROD)([INTERVALS((PI/106), 1), PLASM_T(1)((InternalWallRadius))((INTERVALS((tooth_width(DR)), 1)))]), INTERVALS(H, 1)])))
 
 def buildTooth():
 	RAGGIO = ExternalWallRadius
-	LUNGO = TOP([tooth_mymap1([0.0, 0.1]),Tooth_MyMap2([0.1, 0.1])])
+	LUNGO = TOP(tooth_mymap1([0.0, 0.1]), Tooth_MyMap2([0.1, 0.1]))
 	CORTO = Tooth_MyMap2([-0.05, 0.2])
-	return STRUCT([LUNGO, PLASM_R([1, 2])((PI/106)), CORTO])
+	return STRUCT(LUNGO, PLASM_R([1, 2])((PI/106)), CORTO)
 
 Tooth = buildTooth()
 
-if debug_tower:
-	lab.view(Tooth)
-
+#if debug_tower:
+#    VIEW(Tooth)
 
 # =======================================
 # Plateau
 # =======================================
 
+Plateau = (COMP([COMP([OPTIMIZE, PLASM_STRUCT]), DOUBLE_DIESIS(106)]))([Tooth, PLASM_R([1, 2])((2*PI/106))])
 
-Plateau = (COMP([COMP([OPTIMIZE, STRUCT]), DOUBLE_DIESIS(106)]))([Tooth, PLASM_R([1, 2])((2*PI/106))])
+#if debug_tower:
+#    VIEW(Plateau)
 
-if debug_tower:
-	lab.view(Plateau)
-
-BeltColumnRing = STRUCT([(
-		COMP([STRUCT, DOUBLE_DIESIS(6)]))([
+BeltColumnRing = STRUCT((
+		COMP([PLASM_STRUCT, DOUBLE_DIESIS(6)]))([
 			Column_B, Arc_2_b, 
 			PLASM_R([1, 2])(PI/9), 
 			Column_B, 
@@ -614,11 +595,10 @@ BeltColumnRing = STRUCT([(
 			Arc_2_b, 
 			PLASM_R([1, 2])(PI/9)]),
 			PLASM_T(3)(5.75)(Plateau)
-    ])
+    )
 
-if debug_tower:
-	lab.view(BeltColumnRing)
-
+#if debug_tower:
+#    VIEW(BeltColumnRing)
 
 # =======================================
 # BeltWalls
@@ -627,40 +607,38 @@ if debug_tower:
 
 def MyRing (ANGLE):
 	def MYRING1 (MYRING1_arg_1):
-		R1 , R2 = MYRING1_arg_1
+		R1, R2 = MYRING1_arg_1
 		def MYRING0 (MYRING0_arg_0):
 			N , M = MYRING0_arg_0
-			domain = T(2)(R1)((RAISE(PROD)([INTERVALS(ANGLE)(N),INTERVALS(R2-R1)(M)])))
-			ret_val = MAP(CONS([RAISE(PROD)([S2,COMP([COS, S1])]), RAISE(PROD)([S2,COMP([SIN, S1])])]))(domain)
+			domain = PLASM_T(2)(R1)((RAISE(PROD)([INTERVALS(ANGLE, N), INTERVALS(R2-R1, M)])))
+			ret_val = PLASM_MAP(CONS([RAISE(PROD)([S2, COMP([COS, S1])]), RAISE(PROD)([S2, COMP([SIN, S1])])]))(domain)
 			return ret_val
 		return MYRING0
 	
 	return MYRING1
 
 
-BeltWalls = RAISE(PROD)([MyRing(3*PI/9)([InternalWallRadius, ExternalWallRadius*6.0/7.0])([6, 1]),Q(5.75)])
+BeltWalls = RAISE(PROD)([MyRing(3*PI/9)([InternalWallRadius, ExternalWallRadius*6.0/7.0])([6, 1]), Q(5.75)])
 
-if debug_tower:
-	lab.view(BeltWalls)
+#if debug_tower:
+#    VIEW(BeltWalls)
 
 # =======================================
 # SmallWindow1
 # =======================================
 
 
-SmallWindow1 = PROD([MyRing(3*PI/(18*4))([InternalWallRadius-1, (ExternalWallRadius*6.0/7+1)])([2, 1]),Q(1.75)])
+SmallWindow1 = PROD([MyRing(3*PI/(18*4))([InternalWallRadius-1, (ExternalWallRadius*6.0/7+1)])([2, 1]), Q(1.75)])
 
-if debug_tower:
-	lab.view(SmallWindow1)
-
-
+#if debug_tower:
+#    VIEW(SmallWindow1)
 
 SmallWindow2 = PROD([
 		MyRing(4*PI/(18*5)+PI/64)([InternalWallRadius-1, (ExternalWallRadius*6.0/7+1)])([2, 1]),
 		QUOTE([-1.75, -0.35, 2])])
 
-if debug_tower:
-	lab.view(SmallWindow2)
+#if debug_tower:
+#    VIEW(SmallWindow2)
 
 # =======================================
 # Window3
@@ -669,26 +647,26 @@ if debug_tower:
 
 def Hole3 (ANGLE):
 	def HOLE30 (HOLE30_arg_0):
-		R1 , R2 = HOLE30_arg_0
+		R1, R2 = HOLE30_arg_0
 		C1 = PLASM_BEZIER(S1)(LINE1)
 		LINE1 = [[R1, 0, 0], [R2, 0, 0]]
 		C2 = PLASM_BEZIER(S1)(LINE2)
 		LINE2 = AA((COMP([COMP([UK, PLASM_R([1, 2])(ANGLE)]), MK])))(LINE1)
 		T1 = PLASM_BEZIER(S1)([[0, 0, 2], [0, 0, 4]])
 		T2 = PLASM_BEZIER(S1)([[0, 0, -2], [0, 0, -4]])
-		ret_val = MAP((PLASM_BEZIER(S3)((CONS([Hole3_Portal1((ANGLE)), Hole3_Portal2((ANGLE))])([R1, R2])))))((PROD([PROD([INTERVALS(1)(1),INTERVALS(1)(12)]),INTERVALS(1)(1)])))
+		ret_val = PLASM_MAP((PLASM_BEZIER(S3)((CONS([Hole3_Portal1((ANGLE)), Hole3_Portal2((ANGLE))])([R1, R2])))))((PROD([PROD([INTERVALS(1, 1),INTERVALS(1, 12)]), INTERVALS(1, 1)])))
 		return ret_val
 	return HOLE30
 
 def Hole3_Portal1 (ANGLE):
 	def Hole3_Portal10 (Hole3_Portal10_arg_0):
 		R1 , R2 = Hole3_Portal10_arg_0
-		return CUBICHERMITE(S2)([C1, C2, T1, T2])
+		return PLASM_CUBICHERMITE(S2)([C1, C2, T1, T2])
 	return Hole3_Portal10
 
 def Hole3_Portal2 (ANGLE):
 	def Hole3_Portal20 (Hole3_Portal20_arg_0):
-		R1 , R2 = Hole3_Portal20_arg_0
+		R1, R2 = Hole3_Portal20_arg_0
 		return VECTSUM([PLASM_BEZIER(S2)([C1, C2]),[K(0), K(0), K(-0.1)]])
 	
 	return Hole3_Portal20
@@ -697,8 +675,8 @@ def Hole3_Portal2 (ANGLE):
 Window3 = PROD([MyRing((2*PI/9-0.2))([InternalWallRadius-1, (ExternalWallRadius*6.0/7+1)])([1, 1]),Q(2.5)])
 
 
-if debug_tower:
-	lab.view(Window3)
+#if debug_tower:
+#    VIEW(Window3)
 
 
 
@@ -707,11 +685,11 @@ if debug_tower:
 # =======================================
 
 
-SectorWall = RAISE(DIFF)([BeltWalls, PLASM_R([1, 2])((3*PI/(18*5)))(SmallWindow1), PLASM_R([1, 2])((PI/36))(SmallWindow2), PLASM_R([1, 2])((PI/9+0.1))(Window3)])
+SectorWall = RAISE(PLASM_NDIFF)([BeltWalls, PLASM_R([1, 2])((3*PI/(18*5)))(SmallWindow1), PLASM_R([1, 2])((PI/36))(SmallWindow2), PLASM_R([1, 2])((PI/9+0.1))(Window3)])
 
 
-if debug_tower:
-	lab.view(SectorWall)
+#if debug_tower:
+#    VIEW(SectorWall)
 
 
 
@@ -719,11 +697,11 @@ if debug_tower:
 # BeltTower
 # =======================================
 
-BeltTower = STRUCT([(COMP([STRUCT, DOUBLE_DIESIS(6)]))([SectorWall, PLASM_R([1, 2])((PI/3))]),BeltColumnRing])
+BeltTower = STRUCT((COMP([PLASM_STRUCT, DOUBLE_DIESIS(6)]))([SectorWall, PLASM_R([1, 2])((PI/3))]), BeltColumnRing)
 
 
 if debug_tower:
-	lab.view(BeltTower)
+    VIEW(BeltTower)
 
 
 # =======================================
@@ -731,28 +709,28 @@ if debug_tower:
 # =======================================
 
 
-Fabric = STRUCT([
-		T(3)((RAISE(DIFF)(BasementHeight)))(Basement), 
+Fabric = STRUCT(
+		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
 		Steps, 
 		FirstFloor, 
-		T(3)(FirstFloorHeight)(Kernel), 
+		PLASM_T(3)(FirstFloorHeight)(Kernel), 
 		FirstColumnRing, 
-		T(3)((RAISE(DIFF)([FirstFloorHeight,(0.095*ScaleFactor)]))), 
+		PLASM_T(3)((RAISE(PLASM_NDIFF)([FirstFloorHeight, (0.095*ScaleFactor)]))), 
 		Terrace, (
-		COMP([STRUCT, DOUBLE_DIESIS(5)]))([
+		COMP([PLASM_STRUCT, DOUBLE_DIESIS(5)]))([
 			SecondColumnRing, 
-			T(3)((WallHeight/5.0)), 
+			PLASM_T(3)((WallHeight/5.0)), 
 			Terrace
 		]), 
-		T(3)(WallHeight), 
+		PLASM_T(3)(WallHeight), 
 		TowerCap, 
 		TopTower, 
-		T(3)((RAISE(DIFF)([MAX(3)(TowerCap),0.3]))), 
+		PLASM_T(3)((RAISE(PLASM_NDIFF)([MAX(3)(TowerCap),0.3]))), 
 		BeltTower
-	])
+	)
 
 out = Fabric
 
 #Plasm.save(out,':models/pisa.hpc.gz')
 print "Pisa evaluated in", time.clock() - start, "seconds."
-lab.view(out)
+VIEW(out)

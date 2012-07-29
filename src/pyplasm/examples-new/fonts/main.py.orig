@@ -1,0 +1,35 @@
+#! /usr/bin/python
+
+__author__="Marek Krzysztof Wierzba [marek.wierzba at gmail.com]"
+__date__ ="$18-dic-2011 10.49.06$"
+
+if __name__ == "__main__":
+    from pyplasm import *
+    from fonts import *
+
+    # Choose text:
+    text = "nclab"
+
+    # Choose font:
+    #font = PARSESVGFONT("acaslonprobolditalic.svg")
+    #font = PARSESVGFONT("blackoakstd.svg")
+    #font = PARSESVGFONT("frscript.svg")
+    font = PARSESVGFONT("jokerman.svg")
+    #font = PARSESVGFONT("stencilstd.svg")
+    #font = PARSESVGFONT("acaslonprobold.svg")
+    #font = PARSESVGFONT("cooperblackstd.svg")
+    #font = PARSESVGFONT("giddyupstd.svg")
+    #font = PARSESVGFONT("matisse_.svg")
+    #font = PARSESVGFONT("vivaldii.svg")
+    #font = PARSESVGFONT("acaslonprosemibolditalic.svg")
+    #font = PARSESVGFONT("curlz.svg")
+    #font = PARSESVGFONT("itcblkad.svg")
+    #font = PARSESVGFONT("mtcorsva.svg")
+
+    MyText = TEXTWITHATTRIBUTES(TEXTALIGNMENT, TEXTANGLE, TEXTWIDTH, TEXTHEIGHT)
+    VIEW(TEXT((text)(font))
+    #VIEW(TEXT("K")(frenchspt))
+    #VIEW(TEXT("Python")(jokerman))
+    #VIEW(COLOR([0.38,0.8,0.92,1.])(MyText("Marek Krzysztof Wierzba")(monotypecv)))
+    #VIEW(TEXT("Computational Graphics")(curlz))
+    raw_input("")

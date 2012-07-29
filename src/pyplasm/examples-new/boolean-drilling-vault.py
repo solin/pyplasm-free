@@ -1,3 +1,4 @@
+# Import PLaSM:
 from pyplasm import *
 
 # Define main vault body:
@@ -84,9 +85,19 @@ rest = STRUCT(top, shelf1, shelf2, door, door_frame, tcone, cyl, stcone, h1, h2,
 vault = STRUCT(body, rest)
 VIEW(vault)
 
+# Define drill:
 drill = CYLINDER(0.1, 0.5)
-drill = R(drill, 2, PI/2)
-drill = T(drill, 0.1, 0.5, 0.55)
+tip = CONE(0.1, 0.1)
+drill = TOP(drill, tip)
+drill = R(drill, 2, -PI/2)
+drill = T(drill, -0.7, 0.5, 0.55)
+VIEW(STRUCT(body, rest, drill))
+
+# Put drill through the wall:
+drill = T(drill, 0.3, 0, 0)
+VIEW(STRUCT(body, rest, drill))
+
+# Remove the drill:
 
 # WRONG WAY:
 #drilled_vault = DIFF(vault, drill)

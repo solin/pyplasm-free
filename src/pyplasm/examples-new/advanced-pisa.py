@@ -700,8 +700,8 @@ SectorWall = RAISE(PLASM_NDIFF)([BeltWalls, PLASM_R([1, 2])((3*PI/(18*5)))(Small
 BeltTower = STRUCT((COMP([PLASM_STRUCT, DOUBLE_DIESIS(6)]))([SectorWall, PLASM_R([1, 2])((PI/3))]), BeltColumnRing)
 
 
-if debug_tower:
-    VIEW(BeltTower)
+#if debug_tower:
+#    VIEW(BeltTower)
 
 
 # =======================================
@@ -733,4 +733,4 @@ out = Fabric
 
 #Plasm.save(out,':models/pisa.hpc.gz')
 print "Pisa evaluated in", time.clock() - start, "seconds."
-VIEW(out)
+VIEW(SKELETON(1)(out))

@@ -49,7 +49,7 @@ z_interval = GRID([-13, 0.6])
 secondary_beams = POWER(POWER(x_intervals, y_intervals), z_interval)
 
 # Put all parts together:
-out = SKELETON(1)(STRUCT(temple_base, secondary_beams, ground))
+out = STRUCT(temple_base, secondary_beams, ground)
 
 # Display results:
 VIEW(out)

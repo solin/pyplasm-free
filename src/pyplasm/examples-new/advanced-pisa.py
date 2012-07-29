@@ -5,8 +5,7 @@ import sys,time
 start=time.clock()
 
 # if you want to see intermediate results
-debug_tower = True
-
+debug_tower = False
 
 ScaleFactor = 3.16655256
 InternalBasementRadius = ScaleFactor*0.7
@@ -35,8 +34,8 @@ def BuildBasement1(N_ext=64, N_int = 24):
 
 Basement1 = BuildBasement1()
 
-#if debug_tower:
-#    VIEW(Basement1)
+if debug_tower:
+    VIEW(Basement1)
 
 # =======================================
 # Basement 2
@@ -55,8 +54,8 @@ def BuildBasement2(N = 64):
 
 Basement2 = BuildBasement2()
 
-#if debug_tower:
-#    VIEW(Basement2)
+if debug_tower:
+    VIEW(Basement2)
 
 # =======================================
 # Basement
@@ -64,8 +63,8 @@ Basement2 = BuildBasement2()
 
 Basement = STRUCT(Basement1, T(Basement2, 0, 0, BasementHeight/2.0))
 
-#if debug_tower:
-#    VIEW(Basement)
+if debug_tower:
+    VIEW(Basement)
 
 # =======================================
 # Basement
@@ -78,8 +77,8 @@ def BuildFirstFloor(N_ext = 64, N_int = 24):
 
 FirstFloor = BuildFirstFloor()
 
-#if debug_tower:
-#    VIEW(FirstFloor)
+if debug_tower:
+    VIEW(FirstFloor)
 
 # =======================================
 # Basement
@@ -92,8 +91,8 @@ def BuildKernel(N_ext = 64, N_int = 24):
 
 Kernel = BuildKernel()
 
-#if debug_tower:
-#    VIEW(Kernel)
+if debug_tower:
+    VIEW(Kernel)
 
 # =======================================
 # Terrace
@@ -117,8 +116,8 @@ def BuildTerrace(N = 64):
 
 Terrace = BuildTerrace()
 
-#if debug_tower:
-#    VIEW(Terrace)
+if debug_tower:
+    VIEW(Terrace)
 
 # =======================================
 # Column_1
@@ -136,8 +135,8 @@ def Column_1 (angle, N = 24):
     column = T(column, 2.6 * ScaleFactor, 0, -0.2 * ScaleFactor)
     return R(column, 3, angle)
 
-#if debug_tower:
-#    VIEW(Column_1(PI/12))
+if debug_tower:
+    VIEW(Column_1(PI/12))
 
 # SIZE(object, i) returns the size of the object in the i-th axial direction:
 ColumnScaling = (WallHeight / 6.0) / SIZE(Column_1(PI/24), 3)
@@ -173,8 +172,8 @@ def Column_2 (ANGLE, N=18):
     ret = T(C, 2.53 * ScaleFactor, 0, 0.09 * ScaleFactor)
     return R(ret, 3, ANGLE)
 
-#if debug_tower:
-#    VIEW(Column_2(PI/12))
+if debug_tower:
+    VIEW(Column_2(PI/12))
 
 # =======================================
 # Arch
@@ -202,8 +201,8 @@ def Build_ARC_1_1():
 
 Arc_1_1 = Build_ARC_1_1()
 
-#if debug_tower:
-#	VIEW(Arc_1_1)
+if debug_tower:
+	VIEW(Arc_1_1)
 
 # =======================================
 # WALL_1_HOLE
@@ -223,8 +222,8 @@ def BuildWall_1():
 Wall_1 = BuildWall_1()
 
 
-#if debug_tower:
-#    VIEW(Wall_1)
+if debug_tower:
+    VIEW(Wall_1)
 
 
 
@@ -235,8 +234,8 @@ Wall_1 = BuildWall_1()
 FirstColumnRing = (COMP([PLASM_STRUCT, DOUBLE_DIESIS(12)]))([Column_1((PI/12)), Arc_1_1, Wall_1, PLASM_R([1, 2])((RAISE(DIV)([PI,6])))])
 
 
-#if debug_tower:
-#    VIEW(FirstColumnRing)
+if debug_tower:
+    VIEW(FirstColumnRing)
 
 
 # =======================================
@@ -262,8 +261,8 @@ def Wall_2 (ANGLE):
 
 Wall_2_Ottusangle = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((23*PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100])]))
 
-#if debug_tower:
-#    VIEW(Wall_2_Ottusangle)
+if debug_tower:
+    VIEW(Wall_2_Ottusangle)
 
 
 
@@ -288,8 +287,8 @@ SecondColumnRing = (COMP([PLASM_STRUCT, DOUBLE_DIESIS(24)]))([
       ])
 
 
-#if debug_tower:
-#    VIEW(SecondColumnRing)
+if debug_tower:
+    VIEW(SecondColumnRing)
 
 
 RadiusSteps = 1.9*ScaleFactor
@@ -321,8 +320,8 @@ Steps = (COMP([COMP([OPTIMIZE, PLASM_STRUCT]), DOUBLE_DIESIS(17)]))([
     ])
 
 
-#if debug_tower:
-#    VIEW(Steps)
+if debug_tower:
+    VIEW(Steps)
 
 
 # =======================================
@@ -340,8 +339,8 @@ Fabric = PLASM_STRUCT([
 		])
 
 
-#if debug_tower:
-#    VIEW(Fabric)
+if debug_tower:
+    VIEW(Fabric)
 
 
 LASTFLOORHEIGHT = WallHeight/5.
@@ -376,8 +375,8 @@ def buildTowerCap():
 TowerCap = buildTowerCap()
 
 
-#if debug_tower:
-#    VIEW(TowerCap)
+if debug_tower:
+    VIEW(TowerCap)
 
 
 # =======================================
@@ -409,8 +408,8 @@ C31 = PLASM_BEZIER(S1)([[ExternalWallRadius, 0, Int7Height], [ExternalWallRadius
 C32 = PLASM_BEZIER(S1)([[(ExternalWallRadius+1), 0, Int7Height], [(ExternalWallRadius+1), 0, RAISE(DIV)([((Int7Height+Ext7Height)),2])]])
 SURF3 = PLASM_BEZIER(S2)([C31, C32])
 
-#if debug_tower:
-#   VIEW(Fabric)
+if debug_tower:
+   VIEW(Fabric)
 
 # =======================================
 # Solid
@@ -440,8 +439,8 @@ def buildOUT1():
 
 Out1 = buildOUT1()
 
-#if debug_tower:
-#   VIEW(Out1)
+if debug_tower:
+   VIEW(Out1)
 
 # =======================================
 # Out2
@@ -454,8 +453,8 @@ def buildOUT2():
 Out2 = buildOUT2()
 
 
-#if debug_tower:
-#   VIEW(Out2)
+if debug_tower:
+   VIEW(Out2)
 
 # =======================================
 # Out3
@@ -465,8 +464,8 @@ Out2 = buildOUT2()
 Out3 = PLASM_MAP((Solid(SURF3)))((RAISE(PROD)([(COMP([SQR, PLASM_INTERVALS(1.0)]))(1), INTERVALS((3*PI/2), 36)])))
 
 
-#if debug_tower:
-#   VIEW(Out3)
+if debug_tower:
+   VIEW(Out3)
 
 
 # =======================================
@@ -476,8 +475,8 @@ Out3 = PLASM_MAP((Solid(SURF3)))((RAISE(PROD)([(COMP([SQR, PLASM_INTERVALS(1.0)]
 
 Cap = STRUCT(Out1, Out2, Out3)
 
-#if debug_tower:
-#    VIEW(Cap)
+if debug_tower:
+    VIEW(Cap)
 
 # =======================================
 # Column_B
@@ -498,8 +497,8 @@ def buildColumn_B():
 
 Column_B = buildColumn_B()
 
-#if debug_tower:
-#    VIEW(Column_B)
+if debug_tower:
+    VIEW(Column_B)
 
 
 # =======================================
@@ -518,8 +517,8 @@ def buildARC_2_B():
 
 Arc_2_b = buildARC_2_B()
 
-#if debug_tower:
-#    VIEW(Arc_2_b)
+if debug_tower:
+    VIEW(Arc_2_b)
 
 # =======================================
 # Wall_B_Ottusangle
@@ -533,8 +532,8 @@ def Wall_B (ANGLE):
 
 Wall_B_Ottusangle = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((23*PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100])]))
 
-#if debug_tower:
-#    VIEW(Wall_B_Ottusangle)
+if debug_tower:
+    VIEW(Wall_B_Ottusangle)
 
 # =======================================
 # TopTower
@@ -547,8 +546,8 @@ def Wall_B_Hole (Wall_B_Hole_arg_):
 TopTower = STRUCT(SecondColumnRing, Cap, PLASM_T(3)((WallHeight/5.0)), Terrace)
 
 
-#if debug_tower:
-#    VIEW(TopTower)
+if debug_tower:
+    VIEW(TopTower)
 
 # =======================================
 # Tooth
@@ -573,8 +572,8 @@ def buildTooth():
 
 Tooth = buildTooth()
 
-#if debug_tower:
-#    VIEW(Tooth)
+if debug_tower:
+    VIEW(Tooth)
 
 # =======================================
 # Plateau
@@ -582,8 +581,8 @@ Tooth = buildTooth()
 
 Plateau = (COMP([COMP([OPTIMIZE, PLASM_STRUCT]), DOUBLE_DIESIS(106)]))([Tooth, PLASM_R([1, 2])((2*PI/106))])
 
-#if debug_tower:
-#    VIEW(Plateau)
+if debug_tower:
+    VIEW(Plateau)
 
 BeltColumnRing = STRUCT((
 		COMP([PLASM_STRUCT, DOUBLE_DIESIS(6)]))([
@@ -597,8 +596,8 @@ BeltColumnRing = STRUCT((
 			PLASM_T(3)(5.75)(Plateau)
     )
 
-#if debug_tower:
-#    VIEW(BeltColumnRing)
+if debug_tower:
+    VIEW(BeltColumnRing)
 
 # =======================================
 # BeltWalls
@@ -620,8 +619,8 @@ def MyRing (ANGLE):
 
 BeltWalls = RAISE(PROD)([MyRing(3*PI/9)([InternalWallRadius, ExternalWallRadius*6.0/7.0])([6, 1]), Q(5.75)])
 
-#if debug_tower:
-#    VIEW(BeltWalls)
+if debug_tower:
+    VIEW(BeltWalls)
 
 # =======================================
 # SmallWindow1
@@ -630,15 +629,15 @@ BeltWalls = RAISE(PROD)([MyRing(3*PI/9)([InternalWallRadius, ExternalWallRadius*
 
 SmallWindow1 = PROD([MyRing(3*PI/(18*4))([InternalWallRadius-1, (ExternalWallRadius*6.0/7+1)])([2, 1]), Q(1.75)])
 
-#if debug_tower:
-#    VIEW(SmallWindow1)
+if debug_tower:
+    VIEW(SmallWindow1)
 
 SmallWindow2 = PROD([
 		MyRing(4*PI/(18*5)+PI/64)([InternalWallRadius-1, (ExternalWallRadius*6.0/7+1)])([2, 1]),
 		QUOTE([-1.75, -0.35, 2])])
 
-#if debug_tower:
-#    VIEW(SmallWindow2)
+if debug_tower:
+    VIEW(SmallWindow2)
 
 # =======================================
 # Window3
@@ -675,8 +674,8 @@ def Hole3_Portal2 (ANGLE):
 Window3 = PROD([MyRing((2*PI/9-0.2))([InternalWallRadius-1, (ExternalWallRadius*6.0/7+1)])([1, 1]),Q(2.5)])
 
 
-#if debug_tower:
-#    VIEW(Window3)
+if debug_tower:
+    VIEW(Window3)
 
 
 
@@ -688,8 +687,8 @@ Window3 = PROD([MyRing((2*PI/9-0.2))([InternalWallRadius-1, (ExternalWallRadius*
 SectorWall = RAISE(PLASM_NDIFF)([BeltWalls, PLASM_R([1, 2])((3*PI/(18*5)))(SmallWindow1), PLASM_R([1, 2])((PI/36))(SmallWindow2), PLASM_R([1, 2])((PI/9+0.1))(Window3)])
 
 
-#if debug_tower:
-#    VIEW(SectorWall)
+if debug_tower:
+    VIEW(SectorWall)
 
 
 
@@ -700,8 +699,8 @@ SectorWall = RAISE(PLASM_NDIFF)([BeltWalls, PLASM_R([1, 2])((3*PI/(18*5)))(Small
 BeltTower = STRUCT((COMP([PLASM_STRUCT, DOUBLE_DIESIS(6)]))([SectorWall, PLASM_R([1, 2])((PI/3))]), BeltColumnRing)
 
 
-#if debug_tower:
-#    VIEW(BeltTower)
+if debug_tower:
+    VIEW(BeltTower)
 
 
 # =======================================
@@ -733,4 +732,4 @@ out = Fabric
 
 #Plasm.save(out,':models/pisa.hpc.gz')
 print "Pisa evaluated in", time.clock() - start, "seconds."
-VIEW(SKELETON(1)(out))
+VIEW(out)

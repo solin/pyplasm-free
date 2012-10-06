@@ -219,13 +219,18 @@ class Mesh3D (object):
         vertices = [ vector[i] for i in xrange(vector.size()) ]
         self.fromJSON ({'vertices' : vertices})
 
-def toSTL (obj):
+def toSTL (obj, fname = "design.stl"):
     """
     Return stl represantation of PLASM object.
 
     @param {PlasmObject} obj PLASM object
+    @param {String} fname file name
     @return {String} STL representation of PLASM object
     """
     m = Mesh3D ()
     m.fromPlasm (obj)
-    return m.toSTLFormatData ()
+    stl = m.toSTLFormatData ()
+    f = file (fname, "wt")
+    f.write (stl)
+    f.close ()
+    return stl

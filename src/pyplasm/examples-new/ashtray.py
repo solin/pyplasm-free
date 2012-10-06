@@ -35,4 +35,8 @@ VIEW(out)
 
 # STL output:
 import plasm_stl
-plasm_stl.toSTL(out)
+filename = "ashtray.stl"
+plasm_stl.toSTL(out, filename)
+print "STL file written to", filename
+
+

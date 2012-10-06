@@ -707,7 +707,7 @@ if debug_tower:
 # Fabric
 # =======================================
 
-
+print "Started to construct the final UNION."
 Fabric = STRUCT(
 		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
 		Steps, 
@@ -733,3 +733,11 @@ out = Fabric
 #Plasm.save(out,':models/pisa.hpc.gz')
 print "Pisa evaluated in", time.clock() - start, "seconds."
 VIEW(out)
+
+# STL output:
+import plasm_stl
+filename = "pisa.stl"
+plasm_stl.toSTL(out, filename)
+print "STL file written to", filename
+
+

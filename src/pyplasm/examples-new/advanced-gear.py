@@ -141,15 +141,9 @@ out = STRUCT(*gear)
 
 VIEW(COLOR(color)(out))
 
+# STL output:
+import plasm_stl
+filename = "gear.stl"
+plasm_stl.toSTL(out, filename)
+print "STL file written to", filename
 
-###############
-
-
-
-
-###############
-
-
-
-
-###############

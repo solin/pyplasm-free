@@ -922,12 +922,23 @@ def CUBE (side):
 def SQUARE (side):
     return CUBOID([side, side])
 
+def SQUARE3D (a):
+    # height is kept the same for add these thin objects,
+    # so that logical operations with them work:
+    h = 0.001
+    return CUBOID([a, a, h])
+
 def BRICK (a, b, c):
     return CUBOID([a, b, c])
 
 def RECTANGLE (a, b):
     return CUBOID([a, b])
 
+def RECTANGLE3D (a, b):
+    # height is kept the same for add these thin objects,
+    # so that logical operations with them work:
+    h = 0.001
+    return CUBOID([a, b, 0.001])
 
 HEXAHEDRON=Plasm.cube(3,-1.0/math.sqrt(3.0),+1.0/math.sqrt(3.0))
 
@@ -1739,6 +1750,17 @@ def CIRCLE(r, division = [64, 32]):
         return PLASM_CIRCLE(r)(division)
     else:
         return PLASM_CIRCLE(r)([division, 32])
+def CIRCLE3D(r, division = [64, 32]):
+    # height is kept the same for add these thin objects,
+    # so that logical operations with them work:
+    h = 0.001
+    if type(division) == list: 
+        return PRISM(PLASM_CIRCLE(r)(division), h)
+    else:
+        return PRISM(PLASM_CIRCLE(r)([division, 32]), h)
+
+
+
 # =============================================
 # MY_CYLINDER 
 # =============================================
@@ -1948,6 +1970,27 @@ def TETRAHEDRON(a, b, c, d):
 # NEW DEFINITION:
 def TRIANGLE(a, b, c):
     return PLASM_CONVEXHULL([a, b, c])
+def TRIANGLE3D(a, b, c):
+    # height is kept the same for add these thin objects,
+    # so that logical operations with them work:
+    h = 0.001
+    ## Get maximum edge length:
+    #e1 = sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+    #e2 = sqrt((c[0] - b[0])**2 + (c[1] - b[1])**2)
+    #e3 = sqrt((c[0] - a[0])**2 + (c[1] - a[1])**2)
+    #h = e1
+    #if e2 > h: h = e2
+    #if e3 > h: h = e3 
+    # Get six points for the prism:
+    a_low = [a[0], a[1], 0]
+    a_high = [a[0], a[1], h]
+    b_low = [b[0], b[1], 0]
+    b_high = [b[0], b[1], h]
+    c_low = [c[0], c[1], 0]
+    c_high = [c[0], c[1], h]
+    # Get the convex hull:
+    return PLASM_CONVEXHULL([a_low, a_high, b_low, b_high, c_low, c_high])
+
 
 # ===================================================
 # POLYPOINT 

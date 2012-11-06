@@ -11,7 +11,7 @@ if __name__ == "__main__":
     LINEARAPPROXIMATION = 12
 
     # Choose text:
-    text = "PLaSM"
+    text = "CAD"
 
     # Choose font:
     #font = PARSESVGFONT("acaslonprobolditalic.svg")

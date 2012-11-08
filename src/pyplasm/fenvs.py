@@ -1139,6 +1139,11 @@ def ROTATE(obj, axis, angle):
     return PLASM_ROTATE2(obj)    
 
 R = ROTATE
+RRAD = ROTATE
+
+def RDEG(obj, axis, angle_deg):
+    angle_rad = angle_deg * PI / 180.0
+    return ROTATE(obj, axis, angle_rad)
 
 # ===================================================
 #; Applica uno shearing con vettore shearing-vector-list sulla variabile

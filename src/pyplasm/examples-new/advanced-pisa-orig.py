@@ -6,7 +6,6 @@ start=time.clock()
 
 # if you want to see intermediate results
 debug_tower = False
-Build_steps = False
 
 ScaleFactor = 3.16655256
 InternalBasementRadius = ScaleFactor*0.7
@@ -292,10 +291,6 @@ if debug_tower:
     VIEW(SecondColumnRing)
 
 
-# =======================================
-# Steps
-# =======================================
-
 RadiusSteps = 1.9*ScaleFactor
 PitchSteps = ScaleFactor*7/1.5
 AngleSteps = 21*PI/4
@@ -303,6 +298,12 @@ NumberOfSteps = 293
 AlphaStep = RAISE(DIV)([RAISE(PLASM_NDIFF)(AngleSteps), NumberOfSteps])
 ZetaStep = RAISE(DIV)([(RAISE(SUM)([FirstFloorHeight, WallHeight])), NumberOfSteps])
 StepVolume = (COMP([PLASM_T(1)((RAISE(PLASM_NDIFF)(RadiusSteps))), CUBOID]))((SCALARVECTPROD([[0.4, 0.11, 0.8], ScaleFactor])))
+
+
+
+# =======================================
+# Steps
+# =======================================
 
 def BuildStepsSegment ():
 	TRANSLATIONS = DIESIS(17)((PLASM_T(3)(ZetaStep)))
@@ -312,26 +313,22 @@ def BuildStepsSegment ():
 
 StepSegment = BuildStepsSegment()
 
-if Build_steps:
-    Steps = (COMP([COMP([OPTIMIZE, PLASM_STRUCT]), DOUBLE_DIESIS(17)]))([
-    	StepSegment, 
+Steps = (COMP([COMP([OPTIMIZE, PLASM_STRUCT]), DOUBLE_DIESIS(17)]))([
+	StepSegment, 
 	PLASM_R([1, 2])((RAISE(PROD)([17, AlphaStep]))), 
 	PLASM_T(3)((17*ZetaStep))
     ])
 
 
-    if debug_tower:
-        print "Steps"
-        VIEW(Steps)
+if debug_tower:
+    VIEW(Steps)
+
 
 # =======================================
 # Fabric
 # =======================================
 
-Fabric = []
-
-if Build_steps:
-    Fabric = PLASM_STRUCT([
+Fabric = PLASM_STRUCT([
 		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
 		Steps, FirstFloor, 
 		PLASM_T(3)(FirstFloorHeight)(Kernel), 
@@ -340,22 +337,11 @@ if Build_steps:
 		Terrace, 
 		(COMP([PLASM_STRUCT, DOUBLE_DIESIS(5)]))([SecondColumnRing, PLASM_T(3)((WallHeight/5)), Terrace])
 		])
-else:
-     Fabric = PLASM_STRUCT([
-		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
-		FirstFloor, 
-		PLASM_T(3)(FirstFloorHeight)(Kernel), 
-		FirstColumnRing, 
-		PLASM_T(3)((RAISE(PLASM_NDIFF)([FirstFloorHeight,(0.095*ScaleFactor)]))), 
-		Terrace, 
-		(COMP([PLASM_STRUCT, DOUBLE_DIESIS(5)]))([SecondColumnRing, PLASM_T(3)((WallHeight/5)), Terrace])
-		])
-   
 
 
 if debug_tower:
-    print "Fabric"
     VIEW(Fabric)
+
 
 LASTFLOORHEIGHT = WallHeight/5.
 
@@ -390,7 +376,6 @@ TowerCap = buildTowerCap()
 
 
 if debug_tower:
-    print "TowerCap"
     VIEW(TowerCap)
 
 
@@ -398,10 +383,8 @@ if debug_tower:
 # Fabric
 # =======================================
 
-Fabric = []
-
-if Build_steps:
-    Fabric = STRUCT(
+Fabric = \
+	STRUCT(
 		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
 		Steps, FirstFloor, 
 		PLASM_T(3)(FirstFloorHeight)(Kernel), 
@@ -412,19 +395,6 @@ if Build_steps:
 		PLASM_T(3)((WallHeight)), 
 		TowerCap
 	)
-else:
-    Fabric = STRUCT(
-		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
-		FirstFloor, 
-		PLASM_T(3)(FirstFloorHeight)(Kernel), 
-		FirstColumnRing, 
-		PLASM_T(3)((RAISE(PLASM_NDIFF)([FirstFloorHeight,(0.095*ScaleFactor)]))), 
-		Terrace, 
-		(COMP([PLASM_STRUCT, DOUBLE_DIESIS(6)]))([SecondColumnRing, PLASM_T(3)(WallHeight/5), Terrace]), 
-		PLASM_T(3)((WallHeight)), 
-		TowerCap
-	)
-
 
 Int7Height = 1.7*ScaleFactor
 Ext7Height = 2.3*ScaleFactor
@@ -439,8 +409,7 @@ C32 = PLASM_BEZIER(S1)([[(ExternalWallRadius+1), 0, Int7Height], [(ExternalWallR
 SURF3 = PLASM_BEZIER(S2)([C31, C32])
 
 if debug_tower:
-    print "Fabric"
-    VIEW(Fabric)
+   VIEW(Fabric)
 
 # =======================================
 # Solid
@@ -471,7 +440,6 @@ def buildOUT1():
 Out1 = buildOUT1()
 
 if debug_tower:
-   print "Out1"
    VIEW(Out1)
 
 # =======================================
@@ -486,8 +454,7 @@ Out2 = buildOUT2()
 
 
 if debug_tower:
-    print "Out2"
-    VIEW(Out2)
+   VIEW(Out2)
 
 # =======================================
 # Out3
@@ -498,8 +465,7 @@ Out3 = PLASM_MAP((Solid(SURF3)))((RAISE(PROD)([(COMP([SQR, PLASM_INTERVALS(1.0)]
 
 
 if debug_tower:
-    print "Out3"
-    VIEW(Out3)
+   VIEW(Out3)
 
 
 # =======================================
@@ -510,7 +476,6 @@ if debug_tower:
 Cap = STRUCT(Out1, Out2, Out3)
 
 if debug_tower:
-    print "Cap"
     VIEW(Cap)
 
 # =======================================
@@ -533,7 +498,6 @@ def buildColumn_B():
 Column_B = buildColumn_B()
 
 if debug_tower:
-    print "Column_B"
     VIEW(Column_B)
 
 
@@ -554,7 +518,6 @@ def buildARC_2_B():
 Arc_2_b = buildARC_2_B()
 
 if debug_tower:
-    print "Arc_2_b"
     VIEW(Arc_2_b)
 
 # =======================================
@@ -570,7 +533,6 @@ def Wall_B (ANGLE):
 Wall_B_Ottusangle = (RAISE(SUM)([(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100]),(COMP([COMP([COMP([OPTIMIZE, PLASM_R([1, 2])((23*PI/24))]), PLASM_T(1)((-100))]), CUBOID]))([200, 100, 100])]))
 
 if debug_tower:
-    print "Wall_B_Ottusangle"
     VIEW(Wall_B_Ottusangle)
 
 # =======================================
@@ -585,7 +547,6 @@ TopTower = STRUCT(SecondColumnRing, Cap, PLASM_T(3)((WallHeight/5.0)), Terrace)
 
 
 if debug_tower:
-    print "TopTower"
     VIEW(TopTower)
 
 # =======================================
@@ -612,7 +573,6 @@ def buildTooth():
 Tooth = buildTooth()
 
 if debug_tower:
-    print "Tooth"
     VIEW(Tooth)
 
 # =======================================
@@ -637,7 +597,6 @@ BeltColumnRing = STRUCT((
     )
 
 if debug_tower:
-    print "BeltColumnRing"
     VIEW(BeltColumnRing)
 
 # =======================================
@@ -661,7 +620,6 @@ def MyRing (ANGLE):
 BeltWalls = RAISE(PROD)([MyRing(3*PI/9)([InternalWallRadius, ExternalWallRadius*6.0/7.0])([6, 1]), Q(5.75)])
 
 if debug_tower:
-    print "BeltWalls"
     VIEW(BeltWalls)
 
 # =======================================
@@ -679,7 +637,6 @@ SmallWindow2 = PROD([
 		QUOTE([-1.75, -0.35, 2])])
 
 if debug_tower:
-    print "SmallWindow2"
     VIEW(SmallWindow2)
 
 # =======================================
@@ -718,7 +675,6 @@ Window3 = PROD([MyRing((2*PI/9-0.2))([InternalWallRadius-1, (ExternalWallRadius*
 
 
 if debug_tower:
-    print "Window3"
     VIEW(Window3)
 
 
@@ -732,7 +688,6 @@ SectorWall = RAISE(PLASM_NDIFF)([BeltWalls, PLASM_R([1, 2])((3*PI/(18*5)))(Small
 
 
 if debug_tower:
-    print "SectorWall"
     VIEW(SectorWall)
 
 
@@ -745,7 +700,6 @@ BeltTower = STRUCT((COMP([PLASM_STRUCT, DOUBLE_DIESIS(6)]))([SectorWall, PLASM_R
 
 
 if debug_tower:
-    print "BeltTower"
     VIEW(BeltTower)
 
 
@@ -754,9 +708,7 @@ if debug_tower:
 # =======================================
 
 print "Started to construct the final UNION."
-Fabric = []
-if Build_steps:
-    Fabric = STRUCT(
+Fabric = STRUCT(
 		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
 		Steps, 
 		FirstFloor, 
@@ -775,26 +727,6 @@ if Build_steps:
 		PLASM_T(3)((RAISE(PLASM_NDIFF)([MAX(3)(TowerCap),0.3]))), 
 		BeltTower
 	)
-else:
-    Fabric = STRUCT(
-		PLASM_T(3)((RAISE(PLASM_NDIFF)(BasementHeight)))(Basement), 
-		FirstFloor, 
-		PLASM_T(3)(FirstFloorHeight)(Kernel), 
-		FirstColumnRing, 
-		PLASM_T(3)((RAISE(PLASM_NDIFF)([FirstFloorHeight, (0.095*ScaleFactor)]))), 
-		Terrace, (
-		COMP([PLASM_STRUCT, DOUBLE_DIESIS(5)]))([
-			SecondColumnRing, 
-			PLASM_T(3)((WallHeight/5.0)), 
-			Terrace
-		]), 
-		PLASM_T(3)(WallHeight), 
-		TowerCap, 
-		TopTower, 
-		PLASM_T(3)((RAISE(PLASM_NDIFF)([MAX(3)(TowerCap),0.3]))), 
-		BeltTower
-	)
-
 
 out = Fabric
 

@@ -40,7 +40,8 @@ temple_base.append(T(portal, 0, 6*(m+1), 0))
 temple_base = STRUCT(*temple_base)
 
 # Create a 2D plate for the temple to stand on:
-ground = FOOTPRINT(STRUCT(temple_base))
+ground = BRICK(32, 40, 1)
+ground = T(ground, -4.6, -3.8, -0.9)
 
 # Secondary roof beams:
 x_intervals = GRID(14 * [0.6, -1.2])
@@ -49,7 +50,13 @@ z_interval = GRID([-13, 0.6])
 secondary_beams = POWER(POWER(x_intervals, y_intervals), z_interval)
 
 # Put all parts together:
-out = STRUCT(temple_base, secondary_beams, ground)
+out = UNION(temple_base, secondary_beams, ground)
 
 # Display results:
 VIEW(out)
+
+# STL output:
+import plasm_stl
+filename = "temple.stl"
+plasm_stl.toSTL(out, filename)
+print "STL file written to", filename

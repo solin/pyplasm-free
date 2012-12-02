@@ -1771,7 +1771,7 @@ ERROR_IN_CLASSIFICATION:
 	} /* for (tolerance=....) */
 
 	//cannot find a good classification
-	Log::printf("                        Graph::split FAILED ntimes(%d) start_tolerance(%e)\n",ntry+1,start_tolerance);
+	//Log::printf("                        Graph::split FAILED ntimes(%d) start_tolerance(%e)\n",ntry+1,start_tolerance);
 	return SPLIT_IMPOSSIBLE;
 
 DO_SYMBOLIC_SPLIT:
@@ -1779,7 +1779,7 @@ DO_SYMBOLIC_SPLIT:
 	// i tried with several tolerance
 	if (ntry)
 	{
-		Log::printf("                        Graph::split SUCCEDED ntimes(%d) start_tolerance(%e)\n",ntry+1,start_tolerance);
+	  //Log::printf("                        Graph::split SUCCEDED ntimes(%d) start_tolerance(%e)\n",ntry+1,start_tolerance);
 	}
 
 	/* create two new cells and connect them to vertices */

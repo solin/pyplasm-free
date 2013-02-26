@@ -407,6 +407,7 @@ def LIFT (f):
 
 
 def RAISE (f):
+    #raise NameError('Command RAISE is available starting with Basic Plan.')
     def RAISE0 (args):
         return IF([ISSEQOF(ISFUN), LIFT(f), f])(args)
     return RAISE0
@@ -569,6 +570,7 @@ if self_test:
 # ===================================================
 
 def PROD(args):        
+    raise NameError('Command PROD is available starting with Basic Plan.')
     if isinstance(args,list) and ISPOL(args[0]): return  PLASM_POWER(args)
     if isinstance(args,list) and ISSEQOF(ISNUM)(args): return reduce(lambda x,y: x * y, args)
     if isinstance(args,list) and len(args) == 2 and ISSEQOF(ISNUM)(args[0]) and ISSEQOF(ISNUM)(args[1]): return  Vecf(args[0])*Vecf(args[1])
@@ -920,21 +922,27 @@ def CUBE (side):
     return CUBOID([side, side, side])
 
 def SQUARE (side):
+    raise NameError('Command SQUARE is available starting with Basic Plan.')
     return CUBOID([side, side])
 
 def SQUARE3D (a):
+    raise NameError('Command SQUARE3D is available starting with Basic Plan.')
     # height is kept the same for add these thin objects,
     # so that logical operations with them work:
     h = 0.001
     return CUBOID([a, a, h])
 
 def BRICK (a, b, c):
+    raise NameError('Command BRICK is available starting with Basic Plan.')
+    return
     return CUBOID([a, b, c])
 
 def RECTANGLE (a, b):
+    raise NameError('Command RECTANGLE is available starting with Basic Plan.')
     return CUBOID([a, b])
 
 def RECTANGLE3D (a, b):
+    raise NameError('Command RECTANGLE3D is available starting with Basic Plan.')
     # height is kept the same for add these thin objects,
     # so that logical operations with them work:
     h = 0.001
@@ -948,6 +956,7 @@ HEXAHEDRON=Plasm.cube(3,-1.0/math.sqrt(3.0),+1.0/math.sqrt(3.0))
 # ===================================================
 
 def SIMPLEX (dim):
+    raise NameError('Command SIMPLEX is available starting with Basic Plan.')
     return Plasm.simplex(dim)
 
 if self_test: 
@@ -1006,6 +1015,7 @@ def PLASM_CONVEXHULL (points):
 
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def CONVEXHULL(*args):
+    raise NameError('Command CONVEXHULL is available starting with Basic Plan.')
     return PLASM_CONVEXHULL(list(args))
 
 CHULL = CONVEXHULL
@@ -1231,6 +1241,7 @@ if self_test:
 
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def STRUCT(*args):
+    raise NameError('Command STRUCT is available starting with Basic Plan.')
     return PLASM_STRUCT(list(args))
 
 # ===================================================
@@ -1297,6 +1308,7 @@ if self_test:
 
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS FOR TWO OBJECTS)
 def JOIN(a, b = None):
+    raise NameError('Command JOIN is available starting with Basic Plan.')
     if b != None:
         return PLASM_JOIN([a, b])
     else: # single argument must be list
@@ -1322,6 +1334,7 @@ if self_test:
 
 # NEW DEFINITION (ALLOWS OMITTING BRACKETS)
 def POWER(*args):
+    raise NameError('Command POWER is available starting with Basic Plan.')
     return PLASM_POWER(list(args))
 
 
@@ -1771,6 +1784,7 @@ def CIRCLE3D(r, division = [64, 32]):
 # =============================================
 
 def PLASM_MY_CYLINDER (args):
+    raise NameError('Command CYLINDER is available starting with Basic Plan.')
     R , H = args
     def PLASM_MY_CYLINDER0 (N):
         points=CIRCLE_POINTS(R,N)
@@ -1796,6 +1810,7 @@ def CYLINDER(r, h, division = 64):
 
 
 def PLASM_SPHERE (radius):
+    raise NameError('Command SPHERE is available starting with Basic Plan.')
     def PLASM_SPHERE0 (subds):
         N , M = subds
         domain = Plasm.translate( Plasm.power(PLASM_INTERVALS(PI)(N) , PLASM_INTERVALS(2*PI)(M)), Vecf(0, -PI/2,0 ) )
@@ -1814,6 +1829,7 @@ if self_test:
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
 def SPHERE_SURFACE(radius, divisions = [24, 48]):
+    raise NameError('Command SPHERE_SURFACE is available starting with Basic Plan.')
     # This is a surface:
     return PLASM_SPHERE(radius)(divisions)
 
@@ -1827,6 +1843,7 @@ def SPHERE(radius, divisions = [24, 48]):
 # =============================================
 
 def PLASM_TORUS (radius):
+    raise NameError('Command TORUS is available starting with Basic Plan.')
     r1 , r2 = radius
     def PLASM_TORUS0 (subds):
         N , M = subds
@@ -1848,6 +1865,7 @@ if self_test:
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
 def TORUS_SURFACE(r1, r2, divisions = [64, 32]):
+    raise NameError('Command TORUS_SURFACE is available starting with Basic Plan.')
     return PLASM_TORUS([r1, r2])(divisions)
 
 # =============================================
@@ -1855,6 +1873,7 @@ def TORUS_SURFACE(r1, r2, divisions = [64, 32]):
 # =============================================
 
 def PLASM_SOLIDTORUS (radius):
+    raise NameError('Command PLASM_SOLIDTORUS is available starting with Basic Plan.')
     r1 , r2 = radius
     def PLASM_TORUS0 (subdomains):
         N, M, P = subdomains
@@ -1872,6 +1891,7 @@ if self_test:
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
 def TORUS(r1, r2, divisions = [64, 32]):
+    raise NameError('Command TORUS is available starting with Basic Plan.')
     return PLASM_SOLIDTORUS([r1, r2])([divisions[0], divisions[1], 1])
 
 
@@ -1880,18 +1900,20 @@ def TORUS(r1, r2, divisions = [64, 32]):
 # =============================================
 
 def PLASM_CONE (args):
-     radius , height = args
-     def PLASM_CONE0(N):
-        basis = PLASM_CIRCLE(radius)([N,1])
-        apex = PLASM_TRANSLATE([1, 2, 3])([0, 0, height])(SIMPLEX(0))
-        return  PLASM_JOIN([basis, apex])
-     return PLASM_CONE0
+    raise NameError('Command PLASM_CONE is available starting with Basic Plan.')
+    radius , height = args
+    def PLASM_CONE0(N):
+       basis = PLASM_CIRCLE(radius)([N,1])
+       apex = PLASM_TRANSLATE([1, 2, 3])([0, 0, height])(SIMPLEX(0))
+       return  PLASM_JOIN([basis, apex])
+    return PLASM_CONE0
 
 if self_test:
    assert Plasm.limits(PLASM_CONE([1.0,3.0])(16)).fuzzyEqual(Boxf(Vecf(1,-1,-1,0),Vecf(1,+1,+1,3)))
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
 def CONE(r, h, division = 64):
+    raise NameError('Command CONE is available starting with Basic Plan.')
     return PLASM_CONE([r, h])(division)
 
 
@@ -1900,6 +1922,7 @@ def CONE(r, h, division = 64):
 # =============================================
 
 def PLASM_TRUNCONE (args):
+        raise NameError('Command PLASM_TRUNCONE is available starting with Basic Plan.')
 	R1 , R2 , H = args
 	def PLASM_TRUNCONE0 (N):
 		domain = Plasm.power( QUOTE([2*PI/N for i in range(N)]) , QUOTE([1])  )
@@ -1914,6 +1937,7 @@ def PLASM_TRUNCONE (args):
 
 # NEW DEFINITION WITH NON-MANDATORY DIVISIONS:
 def TRUNCONE(r1, r2, h, divisions = 64):
+    raise NameError('Command TRUNCONE is available starting with Basic Plan.')
     # Changing to a solid:
     return PLASM_JOIN(PLASM_TRUNCONE([r1, r2, h])(divisions))
 
@@ -1922,7 +1946,8 @@ def TRUNCONE(r1, r2, h, divisions = 64):
 # DODECAHEDRON
 # =============================================
 
-def build_DODECAHEDRON ():
+def DODECAHEDRON ():
+        raise NameError('Command DODECAHEDRON is available starting with Basic Plan.')
 	a = 1.0/(math.sqrt(3.0))
 	g = 0.5*(math.sqrt(5.0)-1)
 	top = MKPOL([[[1-g,1,0-g],[1+g,1,0-g]],[[1, 2]],[[1]]])
@@ -1937,14 +1962,15 @@ def build_DODECAHEDRON ():
 		PLASM_R([1, 2])(PI/2), PLASM_R([2, 3])(PI/2), 
 		roofpair]))
 
-DODECAHEDRON = build_DODECAHEDRON()
+#DODECAHEDRON = build_DODECAHEDRON()
 
 
 # =============================================
 # ICOSAHEDRON
 # =============================================
 
-def build_ICOSAHEDRON():
+def ICOSAHEDRON():
+    raise NameError('Command ICOSAHEDRON is available starting with Basic Plan.')
     g = 0.5*(math.sqrt(5)-1)
     b = 2.0/(math.sqrt(5*math.sqrt(5)))
     rectx = PLASM_TRANSLATE([1, 2, 3])([-g, -1, 0])(CUBOID([2*g, 2]))
@@ -1952,17 +1978,18 @@ def build_ICOSAHEDRON():
     rectz = PLASM_R([2, 3])(PI/2)(PLASM_R([1, 2])(PI/2)(rectx))
     return PLASM_S([1, 2, 3])([b, b, b])(PLASM_JOIN([rectx, recty, rectz]))
 
-ICOSAHEDRON = build_ICOSAHEDRON()
+#ICOSAHEDRON = build_ICOSAHEDRON()
 
 
 # =============================================
 # TETRAHEDRON
 # =============================================
 
-def build_TETRAHEDRON():
+def PLASM_TETRAHEDRON():
+        raise NameError('Command TETRAHEDRON is available starting with Basic Plan.')
 	return PLASM_JOIN([  PLASM_TRANSLATE([1, 2, 3])([0, 0, -1.0/3.0])(NGON(3)),  MK([0, 0, 1])  ])
 
-PLASM_TETRAHEDRON = build_TETRAHEDRON()
+#PLASM_TETRAHEDRON = build_TETRAHEDRON()
 
 # NEW DEFINITION:
 def TETRAHEDRON(a, b, c, d):
@@ -1974,8 +2001,10 @@ def TETRAHEDRON(a, b, c, d):
 
 # NEW DEFINITION:
 def TRIANGLE(a, b, c):
+    raise NameError('Command TRIANGLE is available starting with Basic Plan.')
     return PLASM_CONVEXHULL([a, b, c])
 def TRIANGLE3D(a, b, c):
+    raise NameError('Command TRIANGLE3D is available starting with Basic Plan.')
     # height is kept the same for add these thin objects,
     # so that logical operations with them work:
     h = 0.001
@@ -2105,6 +2134,7 @@ if self_test:
 # see http://it.wikipedia.org/wiki/Curva_di_B%C3%A9zier
 # =====================================================
 def PLASM_BEZIER(U):
+        raise NameError('Bezier curves are available starting with Basic Plan.')
 	def PLASM_BEZIER0 (controldata_fn):
 		N=len(controldata_fn)-1
 
@@ -2139,17 +2169,17 @@ def PLASM_BEZIERCURVE (controlpoints):
 def BEZIER_1(*args):
     return PLASM_BEZIER(S1)(list(args))
 
-BE_1 = BEZIER_1
+#BE_1 = BEZIER_1
 
 def BEZIER_2(*args):
     return PLASM_BEZIER(S2)(list(args))
 
-BE_2 = BEZIER_2
+#BE_2 = BEZIER_2
 
 def BEZIER_3(*args):
     return PLASM_BEZIER(S3)(list(args))
 
-BE_3 = BEZIER_3
+#BE_3 = BEZIER_3
 
 
 # ======================================================
@@ -2157,6 +2187,7 @@ BE_3 = BEZIER_3
 # ======================================================
 
 def PLASM_COONSPATCH (args):
+        raise NameError('Coons patch is available starting with Basic Plan.')
 	su0_fn , su1_fn , s0v_fn , s1v_fn = args
 
 	def map_fn(point):
@@ -2193,6 +2224,7 @@ def COONSPATCH(a, b, c, d):
 # ======================================================
 
 def PLASM_RULEDSURFACE (args):
+        raise NameError('Ruled surface is available starting with Basic Plan.')
 	alpha_fn , beta_fn = args
 
 	def map_fn(point):
@@ -2214,14 +2246,16 @@ if self_test:
 
 # NEW DEFINITION
 def RULED_SURFACE(a, b):
+    raise NameError('Ruled surface is available starting with Basic Plan.')
     return PLASM_RULEDSURFACE([a, b])
-RUSURFACE = RULED_SURFACE
+#RUSURFACE = RULED_SURFACE
     
 # ======================================================
 # PROFILE SURFACE
 # ======================================================
 
 def PROFILEPRODSURFACE (args):
+        raise NameError('Profile product surface is available starting with Basic Plan.')
 	profile_fn,section_fn = args
 
 	def map_fun(point):
@@ -2243,7 +2277,7 @@ if self_test:
 # NEW DEFINITION
 def PROFILE_PROD_SURFACE(a, b):
     return PROFILEPRODSURFACE([a, b])
-PPSURFACE = PROFILE_PROD_SURFACE
+#PPSURFACE = PROFILE_PROD_SURFACE
 
     
 # ======================================================
@@ -2251,6 +2285,7 @@ PPSURFACE = PROFILE_PROD_SURFACE
 # ======================================================
 
 def ROTATIONALSURFACE (args):
+        raise NameError('Rotational surface is available starting with Basic Plan.')
 	profile = args
 
 	def map_fn(point):
@@ -2271,8 +2306,8 @@ if self_test:
 # NEW COMMAND:
 def ROTATIONAL_SURFACE(args):
     return ROTATIONALSURFACE(args)
-ROSURFACE = ROTATIONAL_SURFACE
-ROS = ROTATIONAL_SURFACE
+#ROSURFACE = ROTATIONAL_SURFACE
+#ROS = ROTATIONAL_SURFACE
 
     
 # ======================================================
@@ -2280,6 +2315,7 @@ ROS = ROTATIONAL_SURFACE
 # ======================================================
 
 def CYLINDRICALSURFACE (args):
+        raise NameError('Cylindrical surface is available starting with Basic Plan.')
 	alpha_fun   = args[0]
 	beta_fun    = CONS(AA(K)(args[1]))
 	return PLASM_RULEDSURFACE([alpha_fun,beta_fun])
@@ -2295,7 +2331,7 @@ if self_test:
 # NEW COMMAND:
 def CYLINDRICAL_SURFACE(a, b):
     return CYLINDRICALSURFACE([a, b])
-CYSURFACE = CYLINDRICAL_SURFACE
+#CYSURFACE = CYLINDRICAL_SURFACE
 
 
 # ======================================================
@@ -2304,6 +2340,7 @@ CYSURFACE = CYLINDRICAL_SURFACE
 
    
 def CONICALSURFACE (args):
+        raise NameError('Conical surface is available starting with Basic Plan.')
 	apex=args[0]
 	alpha_fn   = lambda point: apex
 	beta_fn    = lambda point: [ args[1](point)[i]-apex[i] for i in range(len(apex))]
@@ -2319,7 +2356,7 @@ if self_test:
 # NEW COMMAND:
 def CONICAL_SURFACE(a, b):
     return CONICALSURFACE([a, b])
-COSURFACE = CONICAL_SURFACE
+#COSURFACE = CONICAL_SURFACE
 
 
 # ======================================================
@@ -2327,6 +2364,7 @@ COSURFACE = CONICAL_SURFACE
 # ======================================================
 
 def PLASM_CUBICHERMITE (U):
+        raise NameError('Cubic Hermite splines are available starting with Basic Plan.')
 	def PLASM_CUBICHERMITE0 (args):
 		p1_fn , p2_fn , s1_fn , s2_fn = args
 		def map_fn(point):
@@ -2363,17 +2401,17 @@ if self_test:
 def CUBIC_HERMITE_1(*args):
     return PLASM_CUBICHERMITE(S1)(list(args))
 
-CH_1 = CUBIC_HERMITE_1
+#CH_1 = CUBIC_HERMITE_1
 
 def CUBIC_HERMITE_2(*args):
     return PLASM_CUBICHERMITE(S2)(list(args))
 
-CH_2 = CUBIC_HERMITE_2
+#CH_2 = CUBIC_HERMITE_2
 
 def CUBIC_HERMITE_3(*args):
     return PLASM_CUBICHERMITE(S3)(list(args))
 
-CH_3 = CUBIC_HERMITE_3
+#CH_3 = CUBIC_HERMITE_3
 
 def PLASM_HERMITE(args):
     P1 , P2 , T1 , T2 = args
@@ -2390,6 +2428,7 @@ def Q(H):
 	return Plasm.mkpol(1,[0,H],[[0,1]])
 
 def PLASM_EXTRUDE (args):
+        raise NameError('Extrusion is available starting with Basic Plan.')
 	__N, Pol, H = args
 	return Plasm.power(Pol,Q(H))
 
@@ -2431,7 +2470,7 @@ def EXTRACT_WIRES (scene):
     return SPLITCELLS(SKEL_1(scene))
 
 # no notion of pols for xge mkpol!
-SPLITPOLS=SPLITCELLS
+#SPLITPOLS=SPLITCELLS
 
 # ===================================================
 # PERMUTATIONS
@@ -2476,6 +2515,7 @@ if self_test:
 # ===================================================
 
 def STAR (N):
+    raise NameError('Command STAR is available starting with Basic Plan.')
     def CIRCLEPOINTS (STARTANGLE):
         def CIRCLEPOINTS1 (R):
             def CIRCLEPOINTS0 (N):
@@ -2520,12 +2560,14 @@ def FINITECONE (pol):
 # ===================================================
 
 def PLASM_PRISM (HEIGHT):
+    raise NameError('Command PLASM_PRISM is available starting with Basic Plan.')
     def PLASM_PRISM0 (BASIS):
         return Plasm.power(BASIS,QUOTE([HEIGHT]))
     return PLASM_PRISM0
 
 # NEW DEFINITION
 def PRISM(basis, h):
+    raise NameError('Command PRISM is available starting with Basic Plan.')
     return PLASM_PRISM(h)(basis)
 
 # ===================================================
@@ -2543,7 +2585,7 @@ def CROSSPOLYTOPE (D):
 	pols=[[1]]
 	return MKPOL([points,cells,pols])
 
-OCTAHEDRON = CROSSPOLYTOPE(2)
+#OCTAHEDRON = CROSSPOLYTOPE(2)
 
 
 
@@ -2584,7 +2626,7 @@ def ROTN (args):
 # MKVECTOR
 # ===================================================
 
-MKVERSORK = PLASM_TOP([PLASM_CYLINDER([1.0/100.0, 7.0/8.0])(6),PLASM_CONE([1.0/16.0,1.0/8])(8)])
+#MKVERSORK = PLASM_TOP([PLASM_CYLINDER([1.0/100.0, 7.0/8.0])(6),PLASM_CONE([1.0/16.0,1.0/8])(8)])
 
 def MKVECTOR (P1):
     def MKVECTOR0 (P2):
@@ -2756,6 +2798,7 @@ def TENSORPRODSURFACE (args):
 # ======================================================
 
 def BILINEARSURFACE(controlpoints):
+        raise NameError('Command BILINEARSURFACE is available starting with Basic Plan.')
 	return TENSORPRODSURFACE([BERNSTEINBASIS(S1)(1),BERNSTEINBASIS(S1)(1)])(controlpoints)
 
 if self_test:
@@ -2789,6 +2832,7 @@ if self_test:
 # ======================================================
 
 def PLASM_HERMITESURFACE(controlpoints):
+        raise NameError('Hermite surface is available starting with Basic Plan.')
 	def H0(point):u=S1(point);u2=u*u;u3=u2*u;return u3-u2
 	def H1(point):u=S1(point);u2=u*u;u3=u2*u;return u3-2*u2+u
 	def H2(point):u=S1(point);u2=u*u;u3=u2*u;return 3*u2-2*u3
@@ -2809,6 +2853,7 @@ if self_test:
 # ======================================================
 
 def PLASM_BEZIERSURFACE (controlpoints):
+    raise NameError('Bezier surface is available starting with Basic Plan.')
     M = len(controlpoints   )-1
     N = len(controlpoints[0])-1
     return TENSORPRODSURFACE([BERNSTEINBASIS(S1)(M), BERNSTEINBASIS(S1)(N)])(controlpoints)
@@ -3360,6 +3405,7 @@ def RATIONALPLASM_BEZIER (controlpoints_fn):
 
 
 def ELLIPSE (args):
+    raise NameError('Command ELLIPSE is available starting with Basic Plan.')
     A , B = args
     def ELLIPSE0 (N):
         C = 0.5*math.sqrt(2)
